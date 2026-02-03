@@ -40,7 +40,9 @@ class Trainer(BaseModel):
                 "bn",
                 "ClassifyNet",
                 "noise_generator",
-                "pooling"
+                "pooling",
+                "token_gate",
+                "alpha_param"
             ]
 
         elif opt.arch.startswith("CLIP:"):
@@ -188,6 +190,5 @@ class Trainer(BaseModel):
         self.optimizer.zero_grad()
         self.loss.backward()
         self.optimizer.step()
-
 
 

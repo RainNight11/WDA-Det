@@ -1,4 +1,5 @@
 from .clip import clip
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,6 +16,17 @@ CHANNELS = {
     'DINOv2:ViT-G14': 1536,
 }
 
+PIXEL_MEAN = {
+    "clip": [0.48145466, 0.4578275, 0.40821073],
+    "dinov2": [0.5, 0.5, 0.5],
+    "imagenet": [0.485, 0.456, 0.406],
+}
+
+PIXEL_STD = {
+    "clip": [0.26862954, 0.26130258, 0.27577711],
+    "dinov2": [0.5, 0.5, 0.5],
+    "imagenet": [0.229, 0.224, 0.225],
+}
 
 # -----------------------------
 # NPR-style Residual Attention
@@ -129,54 +141,119 @@ class NPRResidualAttention(nn.Module):
         return A
 
 
+class ResidualTokenGate(nn.Module):
+    def __init__(self, hidden_dim=16, smooth=True):
+        super().__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(1, hidden_dim),
+            nn.GELU(),
+            nn.Linear(hidden_dim, 1),
+            nn.Sigmoid(),
+        )
+        if smooth:
+            self.smoother = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1, bias=False)
+            nn.init.constant_(self.smoother.weight, 1.0 / 9.0)
+        else:
+            self.smoother = None
+
+    def forward(self, p: torch.Tensor, grid_size):
+        """
+        p: [B, N, 1]
+        grid_size: (Hp, Wp)
+        """
+        w = self.mlp(p)
+        if self.smoother is not None:
+            B, N, _ = w.shape
+            hp, wp = grid_size
+            w_2d = w.transpose(1, 2).reshape(B, 1, hp, wp)
+            w_2d = self.smoother(w_2d)
+            w = w_2d.flatten(2).transpose(1, 2)
+        return w
+
+
 class RFNTModel(nn.Module):
     """
-    New Attention version (你要的结构):
-        x -> wavelet denoise -> x_tilde (clean)
-        r = x - x_tilde
-        r -> NPR-style branch -> A
-        x_att = x_tilde * (1 + alpha*A)
-        x_att -> CLIP/DINOv2 -> feature -> BN -> Linear -> pred
+    Token-wise feature gating version:
+        x -> wavelet denoise -> x_w (clean)
+        r = x_raw - x_w_raw
+        E = backbone_tokens(x_w)  # patch tokens only
+        W = gate(r)               # token-wise gate
+        E' = E * (1 + alpha * W)
+        z = mean(E')
+        z -> BN -> Linear -> pred
     """
 
     def __init__(self, backbone_name, num_classes=1,
-                 alpha=1.0, smooth=True,
-                 npr_layers=(2, 2), npr_use_abs=True, npr_scale_residual=True):
+                 alpha=1.0,
+                 gate_hidden_dim=16,
+                 gate_smooth=True,
+                 residual_tau=0.15):
         super(RFNTModel, self).__init__()
         self.bk_name = backbone_name
+        self.residual_tau = residual_tau
 
         # backbone
         if backbone_name.startswith("CLIP"):
             backbone_name = backbone_name[5:]  # e.g. "ViT-L/14"
             self.pre_model, self.preprocess = clip.load(backbone_name, device="cpu")
             feat_dim = CHANNELS[backbone_name]
+            self.use_token_gate = (
+                hasattr(self.pre_model, "encode_image_tokens")
+                and hasattr(self.pre_model, "visual")
+                and hasattr(self.pre_model.visual, "transformer")
+            )
+            if self.use_token_gate and hasattr(self.pre_model.visual, "conv1"):
+                self.patch_size = int(self.pre_model.visual.conv1.stride[0])
+            else:
+                self.patch_size = None
+            stat_key = "clip"
         elif backbone_name.startswith("DINOv2"):
             model_tag = backbone_name.split(":")[1]
             model_tag = model_tag.replace("-", "").lower()
             hub_name = f"dinov2_{model_tag}"
             self.pre_model = torch.hub.load('models/dinov2', hub_name, source='local').cuda()
             feat_dim = CHANNELS[backbone_name]
+            self.use_token_gate = False
+            self.patch_size = None
+            stat_key = "dinov2"
         else:
             raise ValueError(f"Unsupported backbone_name: {backbone_name}")
+
+        mean = torch.tensor(PIXEL_MEAN[stat_key]).view(1, 3, 1, 1)
+        std = torch.tensor(PIXEL_STD[stat_key]).view(1, 3, 1, 1)
+        self.register_buffer("pixel_mean", mean)
+        self.register_buffer("pixel_std", std)
 
         self.bn = nn.BatchNorm1d(feat_dim)
         self.ClassifyNet = nn.Sequential(nn.Linear(feat_dim, num_classes))
 
-        # 关键：Residual -> NPR-style attention
-        self.res_att = NPRResidualAttention(
-            layers=npr_layers,
-            alpha=alpha,
-            smooth=smooth,
-            use_abs=npr_use_abs,
-            scale_residual=npr_scale_residual
-        )
-        self.alpha = alpha  # 给 forward 用
+        self.token_gate = ResidualTokenGate(hidden_dim=gate_hidden_dim, smooth=gate_smooth)
+        alpha_init = math.log(math.exp(alpha) - 1.0)
+        self.alpha_param = nn.Parameter(torch.tensor(alpha_init, dtype=torch.float32))
 
     def backbone_extract(self, x):
         if self.bk_name.startswith("DINOv2"):
             return self.pre_model(x)
         else:
             return self.pre_model.encode_image(x)
+
+    def _denormalize(self, x):
+        return x * self.pixel_std + self.pixel_mean
+
+    def _normalize(self, x):
+        return (x - self.pixel_mean) / self.pixel_std
+
+    def _residual_to_tokens(self, r_raw, grid_size):
+        r_norm = torch.tanh(r_raw / self.residual_tau)
+        energy = torch.linalg.vector_norm(r_norm, ord=2, dim=1, keepdim=True)
+        if self.patch_size is not None:
+            pooled = F.avg_pool2d(energy, kernel_size=self.patch_size, stride=self.patch_size)
+        else:
+            pooled = F.adaptive_avg_pool2d(energy, grid_size)
+        if pooled.shape[-2:] != grid_size:
+            pooled = F.adaptive_avg_pool2d(energy, grid_size)
+        p = pooled.flatten(2).transpose(1, 2)  # [B, N, 1]
+        return p
 
     # -------- Wavelet denoise (db4 + BayesShrink),保持你原实现 --------
     def denoise(self, image):
@@ -233,32 +310,31 @@ class RFNTModel(nn.Module):
         """
         x: [B,3,H,W]
         """
-        # 1) clean image via wavelet denoise
-        x_tilde = self.denoise(x)  # [B,3,H,W]
+        # 1) denoise in pixel space
+        x_raw = self._denormalize(x)
+        xw_raw = self.denoise(x_raw)  # [B,3,H,W]
+        r_raw = x_raw - xw_raw
+        xw = self._normalize(xw_raw)
 
-        # # 2) residual map (你要的：x - x_denoised)
-        # r = x - x_tilde            # [B,3,H,W]
+        if self.use_token_gate:
+            tokens = self.pre_model.encode_image_tokens(xw)  # [B, 1+N, C]
+            patch_tokens = tokens[:, 1:, :]
+            bsz, num_tokens, _ = patch_tokens.shape
+            hp = int(math.sqrt(num_tokens))
+            wp = num_tokens // hp
+            if hp * wp != num_tokens:
+                raise ValueError(f"Token grid is not square: N={num_tokens}")
 
-        # # 3) residual branch -> attention map
-        # A = self.res_att(r)        # [B,1,H,W]
+            p = self._residual_to_tokens(r_raw, grid_size=(hp, wp))
+            w = self.token_gate(p, grid_size=(hp, wp))
+            alpha = F.softplus(self.alpha_param)
+            gated_tokens = patch_tokens * (1.0 + alpha * w)
+            z = gated_tokens.mean(dim=1)
+            feat_bn = self.bn(z)
+            pred = self.ClassifyNet(feat_bn)
+            return pred, z
 
-        # # 4) attention on clean image
-        # x_att = x_tilde * (1.0 + self.alpha * A)
-
-        x_att = x_tilde
-        # 5) backbone feature
-        feat = self.backbone_extract(x_att)  # [B,D]
+        feat = self.backbone_extract(xw)  # [B,D]
         feat_bn = self.bn(feat)
-
-        # if return_feature:
-        #     if return_attention:
-        #         return feat_bn, A
-        #     return feat_bn
-
         pred = self.ClassifyNet(feat_bn)
-
-        # if return_attention:
-        #     return pred, A, x_att
-        
-        return pred, None
-
+        return pred, feat_bn
