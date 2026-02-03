@@ -1,0 +1,181 @@
+2025-12-08 17:01:04 - INFO - ================================================================================
+2025-12-08 17:01:04 - INFO - 新一次验证开始
+2025-12-08 17:01:04 - INFO - 启动时间: 2025-12-08 17:01:04
+2025-12-08 17:01:04 - INFO - 使用设备: cuda:1
+2025-12-08 17:01:04 - INFO - 当前配置参数:
+2025-12-08 17:01:04 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-08 17:01:04 - INFO -   result_folder: TestResults/WildRF/image_denoise_wavelet_clip_vitl4
+2025-12-08 17:01:04 - INFO -   batch_size: 128
+2025-12-08 17:01:04 - INFO -   gpu_ids: 1
+2025-12-08 17:01:04 - INFO -   checkpoint_dir: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4
+2025-12-08 17:01:04 - INFO -   max_sample: None
+2025-12-08 17:01:04 - INFO -   jpeg_quality: None
+2025-12-08 17:01:04 - INFO -   gaussian_sigma: None
+2025-12-08 17:01:04 - INFO -   disable_ssl_verify: False
+2025-12-08 17:01:04 - INFO -   dataroot: ../..//dataset/WildRF/test
+2025-12-08 17:01:04 - INFO -   data_mode: RFNT_WildRF
+2025-12-08 17:01:04 - INFO -   val_epoch: 7
+2025-12-08 17:01:04 - INFO - 将要验证的 checkpoint: ['model_epoch_7.pth']
+2025-12-08 17:01:04 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_7.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch7
+2025-12-08 17:01:26 - INFO - *************************************************************
+2025-12-08 17:01:26 - INFO - 开始评估数据集: facebook
+2025-12-08 17:03:12 - INFO - ================================================================================
+2025-12-08 17:03:12 - INFO - 新一次验证开始
+2025-12-08 17:03:12 - INFO - 启动时间: 2025-12-08 17:03:12
+2025-12-08 17:03:12 - INFO - 使用设备: cuda:5
+2025-12-08 17:03:12 - INFO - 当前配置参数:
+2025-12-08 17:03:12 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-08 17:03:12 - INFO -   result_folder: TestResults/WildRF/image_denoise_wavelet_clip_vitl4
+2025-12-08 17:03:12 - INFO -   batch_size: 128
+2025-12-08 17:03:12 - INFO -   gpu_ids: 5
+2025-12-08 17:03:12 - INFO -   checkpoint_dir: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4
+2025-12-08 17:03:12 - INFO -   max_sample: None
+2025-12-08 17:03:12 - INFO -   jpeg_quality: None
+2025-12-08 17:03:12 - INFO -   gaussian_sigma: None
+2025-12-08 17:03:12 - INFO -   disable_ssl_verify: False
+2025-12-08 17:03:12 - INFO -   dataroot: ../..//dataset/WildRF/test
+2025-12-08 17:03:12 - INFO -   data_mode: RFNT_WildRF
+2025-12-08 17:03:12 - INFO -   val_epoch: 7
+2025-12-08 17:03:12 - INFO - 将要验证的 checkpoint: ['model_epoch_7.pth']
+2025-12-08 17:03:12 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_7.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch7
+2025-12-08 17:03:26 - INFO - *************************************************************
+2025-12-08 17:03:26 - INFO - 开始评估数据集: facebook
+2025-12-08 17:03:41 - INFO - facebook  AP=0.9682, Acc(0.5)=0.8344, Acc(best)=0.9000, best_thres=0.2177
+2025-12-08 17:03:41 - INFO - 数据集 facebook 评估耗时: 00m 14s
+2025-12-08 17:03:41 - INFO - *************************************************************
+2025-12-08 17:03:41 - INFO - 开始评估数据集: reddit
+2025-12-08 17:06:06 - INFO - reddit  AP=0.9757, Acc(0.5)=0.8460, Acc(best)=0.9147, best_thres=0.1467
+2025-12-08 17:06:06 - INFO - 数据集 reddit 评估耗时: 02m 25s
+2025-12-08 17:06:06 - INFO - *************************************************************
+2025-12-08 17:06:06 - INFO - 开始评估数据集: twitter
+2025-12-08 17:06:48 - INFO - twitter  AP=0.9839, Acc(0.5)=0.7506, Acc(best)=0.9169, best_thres=0.0530
+2025-12-08 17:06:48 - INFO - 数据集 twitter 评估耗时: 00m 41s
+2025-12-08 17:06:48 - INFO - epoch 7 的结果已保存到 TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch7/epoch_7_results.csv
+2025-12-08 17:06:48 - INFO - checkpoint model_epoch_7.pth 整体评估耗时: 03m 35s
+2025-12-08 17:06:48 - INFO - 本次全部验证任务总耗时: 03m 35s
+2025-12-08 17:06:48 - INFO - ================================================================================
+2025-12-08 18:51:08 - INFO - ================================================================================
+2025-12-08 18:51:08 - INFO - 新一次验证开始
+2025-12-08 18:51:08 - INFO - 启动时间: 2025-12-08 18:51:08
+2025-12-08 18:51:08 - INFO - 使用设备: cuda:5
+2025-12-08 18:51:08 - INFO - 当前配置参数:
+2025-12-08 18:51:08 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-08 18:51:08 - INFO -   result_folder: TestResults/WildRF/image_denoise_wavelet_clip_vitl4
+2025-12-08 18:51:08 - INFO -   batch_size: 128
+2025-12-08 18:51:08 - INFO -   gpu_ids: 5
+2025-12-08 18:51:08 - INFO -   checkpoint_dir: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4
+2025-12-08 18:51:08 - INFO -   max_sample: None
+2025-12-08 18:51:08 - INFO -   jpeg_quality: None
+2025-12-08 18:51:08 - INFO -   gaussian_sigma: None
+2025-12-08 18:51:08 - INFO -   disable_ssl_verify: False
+2025-12-08 18:51:08 - INFO -   dataroot: ../..//dataset/WildRF/test
+2025-12-08 18:51:08 - INFO -   data_mode: RFNT_WildRF
+2025-12-08 18:51:08 - INFO -   val_epoch: 0-6
+2025-12-08 18:51:08 - INFO - 将要验证的 checkpoint: ['model_epoch_0.pth', 'model_epoch_1.pth', 'model_epoch_2.pth', 'model_epoch_3.pth', 'model_epoch_4.pth', 'model_epoch_5.pth', 'model_epoch_6.pth']
+2025-12-08 18:51:08 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_0.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch0
+2025-12-08 18:51:25 - INFO - *************************************************************
+2025-12-08 18:51:25 - INFO - 开始评估数据集: facebook
+2025-12-08 18:51:46 - INFO - facebook  AP=0.9501, Acc(0.5)=0.7937, Acc(best)=0.8906, best_thres=0.2898
+2025-12-08 18:51:46 - INFO - 数据集 facebook 评估耗时: 00m 21s
+2025-12-08 18:51:46 - INFO - *************************************************************
+2025-12-08 18:51:46 - INFO - 开始评估数据集: reddit
+2025-12-08 18:54:50 - INFO - reddit  AP=0.9599, Acc(0.5)=0.8213, Acc(best)=0.8913, best_thres=0.2975
+2025-12-08 18:54:50 - INFO - 数据集 reddit 评估耗时: 03m 03s
+2025-12-08 18:54:50 - INFO - *************************************************************
+2025-12-08 18:54:50 - INFO - 开始评估数据集: twitter
+2025-12-08 18:55:27 - INFO - twitter  AP=0.9798, Acc(0.5)=0.7221, Acc(best)=0.9002, best_thres=0.1879
+2025-12-08 18:55:27 - INFO - 数据集 twitter 评估耗时: 00m 37s
+2025-12-08 18:55:27 - INFO - epoch 0 的结果已保存到 TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch0/epoch_0_results.csv
+2025-12-08 18:55:27 - INFO - checkpoint model_epoch_0.pth 整体评估耗时: 04m 19s
+2025-12-08 18:55:27 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_1.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch1
+2025-12-08 18:55:43 - INFO - *************************************************************
+2025-12-08 18:55:43 - INFO - 开始评估数据集: facebook
+2025-12-08 18:56:06 - INFO - facebook  AP=0.9646, Acc(0.5)=0.8344, Acc(best)=0.9000, best_thres=0.2307
+2025-12-08 18:56:06 - INFO - 数据集 facebook 评估耗时: 00m 23s
+2025-12-08 18:56:06 - INFO - *************************************************************
+2025-12-08 18:56:06 - INFO - 开始评估数据集: reddit
+2025-12-08 18:59:23 - INFO - reddit  AP=0.9698, Acc(0.5)=0.8413, Acc(best)=0.9073, best_thres=0.2729
+2025-12-08 18:59:23 - INFO - 数据集 reddit 评估耗时: 03m 16s
+2025-12-08 18:59:23 - INFO - *************************************************************
+2025-12-08 18:59:23 - INFO - 开始评估数据集: twitter
+2025-12-08 18:59:45 - INFO - twitter  AP=0.9831, Acc(0.5)=0.7506, Acc(best)=0.9145, best_thres=0.1463
+2025-12-08 18:59:45 - INFO - 数据集 twitter 评估耗时: 00m 22s
+2025-12-08 18:59:45 - INFO - epoch 1 的结果已保存到 TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch1/epoch_1_results.csv
+2025-12-08 18:59:45 - INFO - checkpoint model_epoch_1.pth 整体评估耗时: 04m 17s
+2025-12-08 18:59:45 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_2.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch2
+2025-12-08 18:59:58 - INFO - *************************************************************
+2025-12-08 18:59:58 - INFO - 开始评估数据集: facebook
+2025-12-08 19:00:09 - INFO - facebook  AP=0.9674, Acc(0.5)=0.8531, Acc(best)=0.9094, best_thres=0.1974
+2025-12-08 19:00:09 - INFO - 数据集 facebook 评估耗时: 00m 10s
+2025-12-08 19:00:09 - INFO - *************************************************************
+2025-12-08 19:00:09 - INFO - 开始评估数据集: reddit
+2025-12-08 19:01:57 - INFO - reddit  AP=0.9724, Acc(0.5)=0.8393, Acc(best)=0.9073, best_thres=0.2325
+2025-12-08 19:01:57 - INFO - 数据集 reddit 评估耗时: 01m 47s
+2025-12-08 19:01:57 - INFO - *************************************************************
+2025-12-08 19:01:57 - INFO - 开始评估数据集: twitter
+2025-12-08 19:02:19 - INFO - twitter  AP=0.9835, Acc(0.5)=0.7482, Acc(best)=0.9192, best_thres=0.1139
+2025-12-08 19:02:19 - INFO - 数据集 twitter 评估耗时: 00m 22s
+2025-12-08 19:02:19 - INFO - epoch 2 的结果已保存到 TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch2/epoch_2_results.csv
+2025-12-08 19:02:19 - INFO - checkpoint model_epoch_2.pth 整体评估耗时: 02m 33s
+2025-12-08 19:02:19 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_3.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch3
+2025-12-08 19:02:30 - INFO - *************************************************************
+2025-12-08 19:02:30 - INFO - 开始评估数据集: facebook
+2025-12-08 19:02:41 - INFO - facebook  AP=0.9681, Acc(0.5)=0.8531, Acc(best)=0.9125, best_thres=0.2490
+2025-12-08 19:02:41 - INFO - 数据集 facebook 评估耗时: 00m 10s
+2025-12-08 19:02:41 - INFO - *************************************************************
+2025-12-08 19:02:41 - INFO - 开始评估数据集: reddit
+2025-12-08 19:04:28 - INFO - reddit  AP=0.9739, Acc(0.5)=0.8460, Acc(best)=0.9087, best_thres=0.2488
+2025-12-08 19:04:28 - INFO - 数据集 reddit 评估耗时: 01m 46s
+2025-12-08 19:04:28 - INFO - *************************************************************
+2025-12-08 19:04:28 - INFO - 开始评估数据集: twitter
+2025-12-08 19:04:49 - INFO - twitter  AP=0.9831, Acc(0.5)=0.7506, Acc(best)=0.9192, best_thres=0.1021
+2025-12-08 19:04:49 - INFO - 数据集 twitter 评估耗时: 00m 21s
+2025-12-08 19:04:49 - INFO - epoch 3 的结果已保存到 TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch3/epoch_3_results.csv
+2025-12-08 19:04:49 - INFO - checkpoint model_epoch_3.pth 整体评估耗时: 02m 29s
+2025-12-08 19:04:49 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_4.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch4
+2025-12-08 19:05:01 - INFO - *************************************************************
+2025-12-08 19:05:01 - INFO - 开始评估数据集: facebook
+2025-12-08 19:05:11 - INFO - facebook  AP=0.9689, Acc(0.5)=0.8438, Acc(best)=0.9094, best_thres=0.2477
+2025-12-08 19:05:11 - INFO - 数据集 facebook 评估耗时: 00m 10s
+2025-12-08 19:05:11 - INFO - *************************************************************
+2025-12-08 19:05:11 - INFO - 开始评估数据集: reddit
+2025-12-08 19:06:55 - INFO - reddit  AP=0.9750, Acc(0.5)=0.8413, Acc(best)=0.9120, best_thres=0.2600
+2025-12-08 19:06:55 - INFO - 数据集 reddit 评估耗时: 01m 43s
+2025-12-08 19:06:55 - INFO - *************************************************************
+2025-12-08 19:06:55 - INFO - 开始评估数据集: twitter
+2025-12-08 19:07:16 - INFO - twitter  AP=0.9835, Acc(0.5)=0.7458, Acc(best)=0.9145, best_thres=0.0847
+2025-12-08 19:07:16 - INFO - 数据集 twitter 评估耗时: 00m 21s
+2025-12-08 19:07:16 - INFO - epoch 4 的结果已保存到 TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch4/epoch_4_results.csv
+2025-12-08 19:07:16 - INFO - checkpoint model_epoch_4.pth 整体评估耗时: 02m 27s
+2025-12-08 19:07:16 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_5.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch5
+2025-12-08 19:07:27 - INFO - *************************************************************
+2025-12-08 19:07:27 - INFO - 开始评估数据集: facebook
+2025-12-08 19:07:37 - INFO - facebook  AP=0.9686, Acc(0.5)=0.8438, Acc(best)=0.9031, best_thres=0.2138
+2025-12-08 19:07:37 - INFO - 数据集 facebook 评估耗时: 00m 10s
+2025-12-08 19:07:37 - INFO - *************************************************************
+2025-12-08 19:07:37 - INFO - 开始评估数据集: reddit
+2025-12-08 19:09:21 - INFO - reddit  AP=0.9751, Acc(0.5)=0.8473, Acc(best)=0.9133, best_thres=0.2590
+2025-12-08 19:09:21 - INFO - 数据集 reddit 评估耗时: 01m 43s
+2025-12-08 19:09:21 - INFO - *************************************************************
+2025-12-08 19:09:21 - INFO - 开始评估数据集: twitter
+2025-12-08 19:09:42 - INFO - twitter  AP=0.9835, Acc(0.5)=0.7530, Acc(best)=0.9145, best_thres=0.0633
+2025-12-08 19:09:42 - INFO - 数据集 twitter 评估耗时: 00m 21s
+2025-12-08 19:09:42 - INFO - epoch 5 的结果已保存到 TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch5/epoch_5_results.csv
+2025-12-08 19:09:42 - INFO - checkpoint model_epoch_5.pth 整体评估耗时: 02m 25s
+2025-12-08 19:09:42 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoise_wavelet_clip_vitl4/model_epoch_6.pth -> 结果目录: TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch6
+2025-12-08 19:09:53 - INFO - *************************************************************
+2025-12-08 19:09:53 - INFO - 开始评估数据集: facebook
+2025-12-08 19:10:04 - INFO - facebook  AP=0.9678, Acc(0.5)=0.8344, Acc(best)=0.9000, best_thres=0.2266
+2025-12-08 19:10:04 - INFO - 数据集 facebook 评估耗时: 00m 10s
+2025-12-08 19:10:04 - INFO - *************************************************************
+2025-12-08 19:10:04 - INFO - 开始评估数据集: reddit
+2025-12-08 19:11:50 - INFO - reddit  AP=0.9753, Acc(0.5)=0.8467, Acc(best)=0.9120, best_thres=0.1912
+2025-12-08 19:11:50 - INFO - 数据集 reddit 评估耗时: 01m 46s
+2025-12-08 19:11:50 - INFO - *************************************************************
+2025-12-08 19:11:50 - INFO - 开始评估数据集: twitter
+2025-12-08 19:12:12 - INFO - twitter  AP=0.9830, Acc(0.5)=0.7506, Acc(best)=0.9121, best_thres=0.0615
+2025-12-08 19:12:12 - INFO - 数据集 twitter 评估耗时: 00m 21s
+2025-12-08 19:12:12 - INFO - epoch 6 的结果已保存到 TestResults/WildRF/image_denoise_wavelet_clip_vitl4/epoch6/epoch_6_results.csv
+2025-12-08 19:12:12 - INFO - checkpoint model_epoch_6.pth 整体评估耗时: 02m 30s
+2025-12-08 19:12:12 - INFO - 本次全部验证任务总耗时: 21m 04s
+2025-12-08 19:12:12 - INFO - ================================================================================

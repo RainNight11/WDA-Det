@@ -1,0 +1,3 @@
+parameter,value,image_type,count,mean_similarity,std_similarity
+Blur Sigma,0.5,Real,3620,0.9913317208132032,0.004082718159115206
+Blur Sigma,0.5,Fake,3620,0.9902738037524302,0.0041349545338919

@@ -1,0 +1,2 @@
+# config.yaml
+--name=rfnt_clip_ba1  --wang2020_data_path=../Datasets/   --data_mode=wang2020   --arch=RFNT   --fix_backbone   --num_threads=24   --niter=50   --batch_size=48   --gpu_ids=0   --lr=0.0005   --last_epoch=-1   --lastload_path=checkpoints/rfnt_clip_ba1/model_epoch_best.pth

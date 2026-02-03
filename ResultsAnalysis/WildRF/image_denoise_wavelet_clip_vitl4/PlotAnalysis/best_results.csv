@@ -1,0 +1,4 @@
+metric,best_dataset(s),best_dataset_mean,best_epoch(s),best_epoch_MEAN
+AP,twitter,98.2925,epoch7,97.59
+Acc(0.5),reddit,84.115,epoch3,81.66
+Acc(best),twitter,91.38875,epoch3,91.35

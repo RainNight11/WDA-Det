@@ -1,0 +1,3 @@
+dataset,parameter,value,image_type,count,mean_similarity,std_similarity
+stable_diffusion_v_1_4,Noise STD,0.1,Real,6000,0.8796242105960846,0.046691093234153117
+stable_diffusion_v_1_4,Noise STD,0.1,Fake,6000,0.901567234804233,0.039538981284648146

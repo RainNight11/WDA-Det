@@ -1,0 +1,3 @@
+dataset,parameter,value,image_type,count,mean_similarity,std_similarity
+progan,Noise STD,0.05,Real,4000,0.9269496064037085,0.029993320861795382
+progan,Noise STD,0.05,Fake,4000,0.9083082423061133,0.03169188107937965

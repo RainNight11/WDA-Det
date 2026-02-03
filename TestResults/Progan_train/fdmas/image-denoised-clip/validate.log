@@ -1,0 +1,157 @@
+2025-12-26 15:44:03 - INFO - ================================================================================
+2025-12-26 15:44:03 - INFO - 新一次验证开始
+2025-12-26 15:44:03 - INFO - 启动时间: 2025-12-26 15:44:03
+2025-12-26 15:44:03 - INFO - 使用设备: cuda:5
+2025-12-26 15:44:03 - INFO - 当前配置参数:
+2025-12-26 15:44:03 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-26 15:44:03 - INFO -   result_folder: TestResults/Progan_train/fdmas/image-denoised-clip
+2025-12-26 15:44:03 - INFO -   batch_size: 128
+2025-12-26 15:44:03 - INFO -   gpu_ids: 5
+2025-12-26 15:44:03 - INFO -   checkpoint_dir: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf
+2025-12-26 15:44:03 - INFO -   max_sample: None
+2025-12-26 15:44:03 - INFO -   jpeg_quality: None
+2025-12-26 15:44:03 - INFO -   gaussian_sigma: None
+2025-12-26 15:44:03 - INFO -   disable_ssl_verify: False
+2025-12-26 15:44:03 - INFO -   dataroot: /data1/liaoty/fdmas/test
+2025-12-26 15:44:03 - INFO -   data_mode: RFNT_fdmas
+2025-12-26 15:44:03 - INFO -   val_epoch: 0-3
+2025-12-26 15:44:48 - INFO - ================================================================================
+2025-12-26 15:44:48 - INFO - 新一次验证开始
+2025-12-26 15:44:48 - INFO - 启动时间: 2025-12-26 15:44:48
+2025-12-26 15:44:48 - INFO - 使用设备: cuda:5
+2025-12-26 15:44:48 - INFO - 当前配置参数:
+2025-12-26 15:44:48 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-26 15:44:48 - INFO -   result_folder: TestResults/Progan_train/fdmas/image-denoised-clip
+2025-12-26 15:44:48 - INFO -   batch_size: 128
+2025-12-26 15:44:48 - INFO -   gpu_ids: 5
+2025-12-26 15:44:48 - INFO -   checkpoint_dir: checkpoints/Progan/image-denoised-clip
+2025-12-26 15:44:48 - INFO -   max_sample: None
+2025-12-26 15:44:48 - INFO -   jpeg_quality: None
+2025-12-26 15:44:48 - INFO -   gaussian_sigma: None
+2025-12-26 15:44:48 - INFO -   disable_ssl_verify: False
+2025-12-26 15:44:48 - INFO -   dataroot: /data1/liaoty/fdmas/test
+2025-12-26 15:44:48 - INFO -   data_mode: RFNT_fdmas
+2025-12-26 15:44:48 - INFO -   val_epoch: 0-3
+2025-12-26 15:44:48 - INFO - 将要验证的 checkpoint: ['model_epoch_0.pth', 'model_epoch_1.pth']
+2025-12-26 15:44:48 - INFO - 开始评估 checkpoint: checkpoints/Progan/image-denoised-clip/model_epoch_0.pth -> 结果目录: TestResults/Progan_train/fdmas/image-denoised-clip/epoch0
+2025-12-26 15:44:57 - INFO - *************************************************************
+2025-12-26 15:44:57 - INFO - 开始评估数据集: ADM
+2025-12-26 15:46:16 - INFO - ================================================================================
+2025-12-26 15:46:16 - INFO - 新一次验证开始
+2025-12-26 15:46:16 - INFO - 启动时间: 2025-12-26 15:46:16
+2025-12-26 15:46:16 - INFO - 使用设备: cuda:1
+2025-12-26 15:46:16 - INFO - 当前配置参数:
+2025-12-26 15:46:16 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-26 15:46:16 - INFO -   result_folder: TestResults/Progan_train/fdmas/image-denoised-clip
+2025-12-26 15:46:16 - INFO -   batch_size: 128
+2025-12-26 15:46:16 - INFO -   gpu_ids: 1
+2025-12-26 15:46:16 - INFO -   checkpoint_dir: checkpoints/Progan/image-denoised-clip
+2025-12-26 15:46:16 - INFO -   max_sample: None
+2025-12-26 15:46:16 - INFO -   jpeg_quality: None
+2025-12-26 15:46:16 - INFO -   gaussian_sigma: None
+2025-12-26 15:46:16 - INFO -   disable_ssl_verify: False
+2025-12-26 15:46:16 - INFO -   dataroot: /data1/liaoty/fdmas/test
+2025-12-26 15:46:16 - INFO -   data_mode: RFNT_fdmas
+2025-12-26 15:46:16 - INFO -   val_epoch: 0-3
+2025-12-26 15:46:16 - INFO - 将要验证的 checkpoint: ['model_epoch_0.pth', 'model_epoch_1.pth']
+2025-12-26 15:46:16 - INFO - 开始评估 checkpoint: checkpoints/Progan/image-denoised-clip/model_epoch_0.pth -> 结果目录: TestResults/Progan_train/fdmas/image-denoised-clip/epoch0
+2025-12-26 15:46:25 - INFO - *************************************************************
+2025-12-26 15:46:25 - INFO - 开始评估数据集: ADM
+2025-12-26 15:47:43 - INFO - ================================================================================
+2025-12-26 15:47:43 - INFO - 新一次验证开始
+2025-12-26 15:47:43 - INFO - 启动时间: 2025-12-26 15:47:43
+2025-12-26 15:47:43 - INFO - 使用设备: cuda:1
+2025-12-26 15:47:43 - INFO - 当前配置参数:
+2025-12-26 15:47:43 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-26 15:47:43 - INFO -   result_folder: TestResults/Progan_train/fdmas/image-denoised-clip
+2025-12-26 15:47:43 - INFO -   batch_size: 64
+2025-12-26 15:47:43 - INFO -   gpu_ids: 1
+2025-12-26 15:47:43 - INFO -   checkpoint_dir: checkpoints/Progan/image-denoised-clip
+2025-12-26 15:47:43 - INFO -   max_sample: None
+2025-12-26 15:47:43 - INFO -   jpeg_quality: None
+2025-12-26 15:47:43 - INFO -   gaussian_sigma: None
+2025-12-26 15:47:43 - INFO -   disable_ssl_verify: False
+2025-12-26 15:47:43 - INFO -   dataroot: /data1/liaoty/fdmas/test
+2025-12-26 15:47:43 - INFO -   data_mode: RFNT_fdmas
+2025-12-26 15:47:43 - INFO -   val_epoch: 0-3
+2025-12-26 15:47:43 - INFO - 将要验证的 checkpoint: ['model_epoch_0.pth', 'model_epoch_1.pth']
+2025-12-26 15:47:43 - INFO - 开始评估 checkpoint: checkpoints/Progan/image-denoised-clip/model_epoch_0.pth -> 结果目录: TestResults/Progan_train/fdmas/image-denoised-clip/epoch0
+2025-12-26 15:47:52 - INFO - *************************************************************
+2025-12-26 15:47:52 - INFO - 开始评估数据集: ADM
+2025-12-26 15:59:03 - INFO - ADM  AP=0.8547, Acc(0.5)=0.6725, Acc(best)=0.7866, best_thres=0.0111
+2025-12-26 15:59:03 - INFO - 数据集 ADM 评估耗时: 11m 10s
+2025-12-26 15:59:03 - INFO - *************************************************************
+2025-12-26 15:59:03 - INFO - 开始评估数据集: biggan
+2025-12-26 16:02:13 - INFO - biggan  AP=0.9778, Acc(0.5)=0.8992, Acc(best)=0.9190, best_thres=0.1058
+2025-12-26 16:02:13 - INFO - 数据集 biggan 评估耗时: 03m 10s
+2025-12-26 16:02:13 - INFO - *************************************************************
+2025-12-26 16:02:13 - INFO - 开始评估数据集: cyclegan
+2025-12-26 16:04:17 - INFO - cyclegan  AP=0.9928, Acc(0.5)=0.9603, Acc(best)=0.9618, best_thres=0.3136
+2025-12-26 16:04:17 - INFO - 数据集 cyclegan 评估耗时: 02m 04s
+2025-12-26 16:04:17 - INFO - *************************************************************
+2025-12-26 16:04:17 - INFO - 开始评估数据集: DALLE2
+2025-12-26 16:06:13 - INFO - DALLE2  AP=0.5594, Acc(0.5)=0.5040, Acc(best)=0.5975, best_thres=0.0006
+2025-12-26 16:06:13 - INFO - 数据集 DALLE2 评估耗时: 01m 55s
+2025-12-26 16:06:13 - INFO - *************************************************************
+2025-12-26 16:06:13 - INFO - 开始评估数据集: gaugan
+2025-12-26 16:15:09 - INFO - gaugan  AP=0.9996, Acc(0.5)=0.9866, Acc(best)=0.9910, best_thres=0.8367
+2025-12-26 16:15:09 - INFO - 数据集 gaugan 评估耗时: 08m 56s
+2025-12-26 16:15:09 - INFO - *************************************************************
+2025-12-26 16:15:09 - INFO - 开始评估数据集: Glide
+2025-12-26 16:23:30 - INFO - ================================================================================
+2025-12-26 16:23:30 - INFO - 新一次验证开始
+2025-12-26 16:23:30 - INFO - 启动时间: 2025-12-26 16:23:30
+2025-12-26 16:23:30 - INFO - 使用设备: cuda:0
+2025-12-26 16:23:30 - INFO - 当前配置参数:
+2025-12-26 16:23:30 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-26 16:23:30 - INFO -   result_folder: TestResults/Progan_train/fdmas/image-denoised-clip
+2025-12-26 16:23:30 - INFO -   batch_size: 64
+2025-12-26 16:23:30 - INFO -   gpu_ids: 0
+2025-12-26 16:23:30 - INFO -   checkpoint_dir: checkpoints/Progan/image-denoised-clip
+2025-12-26 16:23:30 - INFO -   max_sample: None
+2025-12-26 16:23:30 - INFO -   jpeg_quality: None
+2025-12-26 16:23:30 - INFO -   gaussian_sigma: None
+2025-12-26 16:23:30 - INFO -   disable_ssl_verify: False
+2025-12-26 16:23:30 - INFO -   dataroot: /data1/liaoty/fdmas/test
+2025-12-26 16:23:30 - INFO -   data_mode: RFNT_fdmas
+2025-12-26 16:23:30 - INFO -   val_epoch: 0-3
+2025-12-26 16:23:30 - INFO - 将要验证的 checkpoint: ['model_epoch_0.pth', 'model_epoch_1.pth']
+2025-12-26 16:23:30 - INFO - 开始评估 checkpoint: checkpoints/Progan/image-denoised-clip/model_epoch_0.pth -> 结果目录: TestResults/Progan_train/fdmas/image-denoised-clip/epoch0
+2025-12-26 16:24:32 - INFO - ================================================================================
+2025-12-26 16:24:32 - INFO - 新一次验证开始
+2025-12-26 16:24:32 - INFO - 启动时间: 2025-12-26 16:24:32
+2025-12-26 16:24:32 - INFO - 使用设备: cuda:0
+2025-12-26 16:24:32 - INFO - 当前配置参数:
+2025-12-26 16:24:32 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-26 16:24:32 - INFO -   result_folder: TestResults/Progan_train/fdmas/image-denoised-clip
+2025-12-26 16:24:32 - INFO -   batch_size: 64
+2025-12-26 16:24:32 - INFO -   gpu_ids: 0
+2025-12-26 16:24:32 - INFO -   checkpoint_dir: checkpoints/Progan/image-denoised-clip
+2025-12-26 16:24:32 - INFO -   max_sample: None
+2025-12-26 16:24:32 - INFO -   jpeg_quality: None
+2025-12-26 16:24:32 - INFO -   gaussian_sigma: None
+2025-12-26 16:24:32 - INFO -   disable_ssl_verify: False
+2025-12-26 16:24:32 - INFO -   dataroot: /data1/liaoty/fdmas/test
+2025-12-26 16:24:32 - INFO -   data_mode: RFNT_fdmas
+2025-12-26 16:24:32 - INFO -   val_epoch: 0-3
+2025-12-26 16:24:32 - INFO - 将要验证的 checkpoint: ['model_epoch_0.pth', 'model_epoch_1.pth']
+2025-12-26 16:24:32 - INFO - 开始评估 checkpoint: checkpoints/Progan/image-denoised-clip/model_epoch_0.pth -> 结果目录: TestResults/Progan_train/fdmas/image-denoised-clip/epoch0
+2025-12-26 16:34:23 - INFO - ================================================================================
+2025-12-26 16:34:23 - INFO - 新一次验证开始
+2025-12-26 16:34:23 - INFO - 启动时间: 2025-12-26 16:34:23
+2025-12-26 16:34:23 - INFO - 使用设备: cuda:0
+2025-12-26 16:34:23 - INFO - 当前配置参数:
+2025-12-26 16:34:23 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-26 16:34:23 - INFO -   result_folder: TestResults/Progan_train/fdmas/image-denoised-clip
+2025-12-26 16:34:23 - INFO -   batch_size: 64
+2025-12-26 16:34:23 - INFO -   gpu_ids: 0
+2025-12-26 16:34:23 - INFO -   checkpoint_dir: checkpoints/Progan/image-denoised-clip
+2025-12-26 16:34:23 - INFO -   max_sample: None
+2025-12-26 16:34:23 - INFO -   jpeg_quality: None
+2025-12-26 16:34:23 - INFO -   gaussian_sigma: None
+2025-12-26 16:34:23 - INFO -   disable_ssl_verify: False
+2025-12-26 16:34:23 - INFO -   dataroot: /data1/liaoty/fdmas/test
+2025-12-26 16:34:23 - INFO -   data_mode: RFNT_fdmas
+2025-12-26 16:34:23 - INFO -   val_epoch: 0-3
+2025-12-26 16:34:23 - INFO - 将要验证的 checkpoint: ['model_epoch_0.pth', 'model_epoch_1.pth', 'model_epoch_2.pth']
+2025-12-26 16:34:23 - INFO - 开始评估 checkpoint: checkpoints/Progan/image-denoised-clip/model_epoch_0.pth -> 结果目录: TestResults/Progan_train/fdmas/image-denoised-clip/epoch0

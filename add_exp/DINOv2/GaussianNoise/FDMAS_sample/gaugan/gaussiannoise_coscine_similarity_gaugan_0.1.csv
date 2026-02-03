@@ -1,0 +1,3 @@
+dataset,parameter,value,image_type,count,mean_similarity,std_similarity
+gaugan,Noise STD,0.1,Real,500,0.8711823054552078,0.07972840949176874
+gaugan,Noise STD,0.1,Fake,500,0.7296892734766006,0.11936336873077968

@@ -1,0 +1,425 @@
+2025-12-24 19:09:35 - INFO - ================================================================================
+2025-12-24 19:09:35 - INFO - 新一次验证开始
+2025-12-24 19:09:35 - INFO - 启动时间: 2025-12-24 19:09:35
+2025-12-24 19:09:35 - INFO - 使用设备: cuda:5
+2025-12-24 19:09:35 - INFO - 当前配置参数:
+2025-12-24 19:09:35 - INFO -   arch: RFNT-CLIP:ViT-L/14
+2025-12-24 19:09:35 - INFO -   result_folder: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf
+2025-12-24 19:09:35 - INFO -   batch_size: 128
+2025-12-24 19:09:35 - INFO -   gpu_ids: 5
+2025-12-24 19:09:35 - INFO -   checkpoint_dir: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf
+2025-12-24 19:09:35 - INFO -   max_sample: None
+2025-12-24 19:09:35 - INFO -   jpeg_quality: None
+2025-12-24 19:09:35 - INFO -   gaussian_sigma: None
+2025-12-24 19:09:35 - INFO -   disable_ssl_verify: False
+2025-12-24 19:09:35 - INFO -   dataroot: /data_B/tianyu/dataset/WildRF/test/
+2025-12-24 19:09:35 - INFO -   data_mode: RFNT_WildRF
+2025-12-24 19:09:35 - INFO -   val_epoch: 0-26
+2025-12-24 19:09:35 - INFO - 将要验证的 checkpoint: ['model_epoch_0.pth', 'model_epoch_1.pth', 'model_epoch_2.pth', 'model_epoch_3.pth', 'model_epoch_4.pth', 'model_epoch_5.pth', 'model_epoch_6.pth', 'model_epoch_7.pth', 'model_epoch_8.pth', 'model_epoch_9.pth', 'model_epoch_10.pth', 'model_epoch_11.pth', 'model_epoch_12.pth', 'model_epoch_13.pth', 'model_epoch_14.pth', 'model_epoch_15.pth', 'model_epoch_16.pth', 'model_epoch_17.pth', 'model_epoch_18.pth', 'model_epoch_19.pth', 'model_epoch_20.pth', 'model_epoch_21.pth', 'model_epoch_22.pth', 'model_epoch_23.pth', 'model_epoch_24.pth', 'model_epoch_25.pth', 'model_epoch_26.pth']
+2025-12-24 19:09:35 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_0.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch0
+2025-12-24 19:10:12 - INFO - *************************************************************
+2025-12-24 19:10:12 - INFO - 开始评估数据集: facebook
+2025-12-24 19:10:39 - INFO - facebook  AP=0.9284, Acc(0.5)=0.7906, Acc(best)=0.8500, best_thres=0.4261
+2025-12-24 19:10:39 - INFO - 数据集 facebook 评估耗时: 00m 26s
+2025-12-24 19:10:39 - INFO - *************************************************************
+2025-12-24 19:10:39 - INFO - 开始评估数据集: reddit
+2025-12-24 19:14:46 - INFO - reddit  AP=0.9605, Acc(0.5)=0.8573, Acc(best)=0.8953, best_thres=0.3437
+2025-12-24 19:14:46 - INFO - 数据集 reddit 评估耗时: 04m 06s
+2025-12-24 19:14:46 - INFO - *************************************************************
+2025-12-24 19:14:46 - INFO - 开始评估数据集: twitter
+2025-12-24 19:15:41 - INFO - twitter  AP=0.9801, Acc(0.5)=0.7648, Acc(best)=0.9026, best_thres=0.2855
+2025-12-24 19:15:41 - INFO - 数据集 twitter 评估耗时: 00m 55s
+2025-12-24 19:15:41 - INFO - epoch 0 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch0/epoch_0_results.csv
+2025-12-24 19:15:41 - INFO - checkpoint model_epoch_0.pth 整体评估耗时: 06m 05s
+2025-12-24 19:15:41 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_1.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch1
+2025-12-24 19:16:12 - INFO - *************************************************************
+2025-12-24 19:16:12 - INFO - 开始评估数据集: facebook
+2025-12-24 19:16:31 - INFO - facebook  AP=0.9466, Acc(0.5)=0.8344, Acc(best)=0.8812, best_thres=0.3711
+2025-12-24 19:16:31 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 19:16:31 - INFO - *************************************************************
+2025-12-24 19:16:31 - INFO - 开始评估数据集: reddit
+2025-12-24 19:19:32 - INFO - reddit  AP=0.9681, Acc(0.5)=0.8700, Acc(best)=0.9033, best_thres=0.3412
+2025-12-24 19:19:32 - INFO - 数据集 reddit 评估耗时: 03m 00s
+2025-12-24 19:19:32 - INFO - *************************************************************
+2025-12-24 19:19:32 - INFO - 开始评估数据集: twitter
+2025-12-24 19:20:08 - INFO - twitter  AP=0.9830, Acc(0.5)=0.7862, Acc(best)=0.9121, best_thres=0.2166
+2025-12-24 19:20:08 - INFO - 数据集 twitter 评估耗时: 00m 36s
+2025-12-24 19:20:08 - INFO - epoch 1 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch1/epoch_1_results.csv
+2025-12-24 19:20:08 - INFO - checkpoint model_epoch_1.pth 整体评估耗时: 04m 26s
+2025-12-24 19:20:08 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_2.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch2
+2025-12-24 19:20:42 - INFO - *************************************************************
+2025-12-24 19:20:42 - INFO - 开始评估数据集: facebook
+2025-12-24 19:21:02 - INFO - facebook  AP=0.9525, Acc(0.5)=0.8344, Acc(best)=0.8812, best_thres=0.3388
+2025-12-24 19:21:02 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 19:21:02 - INFO - *************************************************************
+2025-12-24 19:21:02 - INFO - 开始评估数据集: reddit
+2025-12-24 19:24:05 - INFO - reddit  AP=0.9716, Acc(0.5)=0.8700, Acc(best)=0.9093, best_thres=0.2975
+2025-12-24 19:24:05 - INFO - 数据集 reddit 评估耗时: 03m 03s
+2025-12-24 19:24:05 - INFO - *************************************************************
+2025-12-24 19:24:05 - INFO - 开始评估数据集: twitter
+2025-12-24 19:24:39 - INFO - twitter  AP=0.9836, Acc(0.5)=0.7767, Acc(best)=0.9145, best_thres=0.2207
+2025-12-24 19:24:39 - INFO - 数据集 twitter 评估耗时: 00m 33s
+2025-12-24 19:24:39 - INFO - epoch 2 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch2/epoch_2_results.csv
+2025-12-24 19:24:39 - INFO - checkpoint model_epoch_2.pth 整体评估耗时: 04m 31s
+2025-12-24 19:24:39 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_3.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch3
+2025-12-24 19:25:32 - INFO - *************************************************************
+2025-12-24 19:25:32 - INFO - 开始评估数据集: facebook
+2025-12-24 19:25:49 - INFO - facebook  AP=0.9565, Acc(0.5)=0.8406, Acc(best)=0.8875, best_thres=0.3495
+2025-12-24 19:25:49 - INFO - 数据集 facebook 评估耗时: 00m 17s
+2025-12-24 19:25:49 - INFO - *************************************************************
+2025-12-24 19:25:49 - INFO - 开始评估数据集: reddit
+2025-12-24 19:28:45 - INFO - reddit  AP=0.9733, Acc(0.5)=0.8727, Acc(best)=0.9107, best_thres=0.2678
+2025-12-24 19:28:45 - INFO - 数据集 reddit 评估耗时: 02m 55s
+2025-12-24 19:28:45 - INFO - *************************************************************
+2025-12-24 19:28:45 - INFO - 开始评估数据集: twitter
+2025-12-24 19:29:21 - INFO - twitter  AP=0.9841, Acc(0.5)=0.7862, Acc(best)=0.9169, best_thres=0.1766
+2025-12-24 19:29:21 - INFO - 数据集 twitter 评估耗时: 00m 36s
+2025-12-24 19:29:21 - INFO - epoch 3 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch3/epoch_3_results.csv
+2025-12-24 19:29:21 - INFO - checkpoint model_epoch_3.pth 整体评估耗时: 04m 42s
+2025-12-24 19:29:21 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_4.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch4
+2025-12-24 19:30:05 - INFO - *************************************************************
+2025-12-24 19:30:05 - INFO - 开始评估数据集: facebook
+2025-12-24 19:30:25 - INFO - facebook  AP=0.9585, Acc(0.5)=0.8500, Acc(best)=0.8938, best_thres=0.3063
+2025-12-24 19:30:25 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 19:30:25 - INFO - *************************************************************
+2025-12-24 19:30:25 - INFO - 开始评估数据集: reddit
+2025-12-24 19:33:32 - INFO - reddit  AP=0.9741, Acc(0.5)=0.8740, Acc(best)=0.9120, best_thres=0.3005
+2025-12-24 19:33:32 - INFO - 数据集 reddit 评估耗时: 03m 07s
+2025-12-24 19:33:32 - INFO - *************************************************************
+2025-12-24 19:33:32 - INFO - 开始评估数据集: twitter
+2025-12-24 19:34:09 - INFO - twitter  AP=0.9847, Acc(0.5)=0.7862, Acc(best)=0.9169, best_thres=0.1667
+2025-12-24 19:34:09 - INFO - 数据集 twitter 评估耗时: 00m 37s
+2025-12-24 19:34:09 - INFO - epoch 4 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch4/epoch_4_results.csv
+2025-12-24 19:34:09 - INFO - checkpoint model_epoch_4.pth 整体评估耗时: 04m 48s
+2025-12-24 19:34:09 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_5.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch5
+2025-12-24 19:35:00 - INFO - *************************************************************
+2025-12-24 19:35:00 - INFO - 开始评估数据集: facebook
+2025-12-24 19:35:20 - INFO - facebook  AP=0.9591, Acc(0.5)=0.8562, Acc(best)=0.8969, best_thres=0.3014
+2025-12-24 19:35:20 - INFO - 数据集 facebook 评估耗时: 00m 20s
+2025-12-24 19:35:20 - INFO - *************************************************************
+2025-12-24 19:35:20 - INFO - 开始评估数据集: reddit
+2025-12-24 19:38:13 - INFO - reddit  AP=0.9745, Acc(0.5)=0.8733, Acc(best)=0.9127, best_thres=0.2442
+2025-12-24 19:38:13 - INFO - 数据集 reddit 评估耗时: 02m 53s
+2025-12-24 19:38:13 - INFO - *************************************************************
+2025-12-24 19:38:13 - INFO - 开始评估数据集: twitter
+2025-12-24 19:38:46 - INFO - twitter  AP=0.9843, Acc(0.5)=0.7910, Acc(best)=0.9145, best_thres=0.1655
+2025-12-24 19:38:46 - INFO - 数据集 twitter 评估耗时: 00m 32s
+2025-12-24 19:38:46 - INFO - epoch 5 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch5/epoch_5_results.csv
+2025-12-24 19:38:46 - INFO - checkpoint model_epoch_5.pth 整体评估耗时: 04m 36s
+2025-12-24 19:38:46 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_6.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch6
+2025-12-24 19:39:47 - INFO - *************************************************************
+2025-12-24 19:39:47 - INFO - 开始评估数据集: facebook
+2025-12-24 19:40:07 - INFO - facebook  AP=0.9584, Acc(0.5)=0.8375, Acc(best)=0.8969, best_thres=0.2835
+2025-12-24 19:40:07 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 19:40:07 - INFO - *************************************************************
+2025-12-24 19:40:07 - INFO - 开始评估数据集: reddit
+2025-12-24 19:43:11 - INFO - reddit  AP=0.9744, Acc(0.5)=0.8687, Acc(best)=0.9120, best_thres=0.2049
+2025-12-24 19:43:11 - INFO - 数据集 reddit 评估耗时: 03m 04s
+2025-12-24 19:43:11 - INFO - *************************************************************
+2025-12-24 19:43:11 - INFO - 开始评估数据集: twitter
+2025-12-24 19:43:47 - INFO - twitter  AP=0.9845, Acc(0.5)=0.7743, Acc(best)=0.9169, best_thres=0.1478
+2025-12-24 19:43:47 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 19:43:47 - INFO - epoch 6 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch6/epoch_6_results.csv
+2025-12-24 19:43:47 - INFO - checkpoint model_epoch_6.pth 整体评估耗时: 05m 00s
+2025-12-24 19:43:47 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_7.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch7
+2025-12-24 19:44:51 - INFO - *************************************************************
+2025-12-24 19:44:51 - INFO - 开始评估数据集: facebook
+2025-12-24 19:45:12 - INFO - facebook  AP=0.9579, Acc(0.5)=0.8469, Acc(best)=0.9000, best_thres=0.2883
+2025-12-24 19:45:12 - INFO - 数据集 facebook 评估耗时: 00m 20s
+2025-12-24 19:45:12 - INFO - *************************************************************
+2025-12-24 19:45:12 - INFO - 开始评估数据集: reddit
+2025-12-24 19:48:14 - INFO - reddit  AP=0.9743, Acc(0.5)=0.8687, Acc(best)=0.9127, best_thres=0.2329
+2025-12-24 19:48:14 - INFO - 数据集 reddit 评估耗时: 03m 02s
+2025-12-24 19:48:14 - INFO - *************************************************************
+2025-12-24 19:48:14 - INFO - 开始评估数据集: twitter
+2025-12-24 19:48:50 - INFO - twitter  AP=0.9843, Acc(0.5)=0.7886, Acc(best)=0.9169, best_thres=0.1413
+2025-12-24 19:48:50 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 19:48:50 - INFO - epoch 7 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch7/epoch_7_results.csv
+2025-12-24 19:48:50 - INFO - checkpoint model_epoch_7.pth 整体评估耗时: 05m 02s
+2025-12-24 19:48:50 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_8.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch8
+2025-12-24 19:49:34 - INFO - *************************************************************
+2025-12-24 19:49:34 - INFO - 开始评估数据集: facebook
+2025-12-24 19:49:51 - INFO - facebook  AP=0.9574, Acc(0.5)=0.8469, Acc(best)=0.8906, best_thres=0.2800
+2025-12-24 19:49:51 - INFO - 数据集 facebook 评估耗时: 00m 17s
+2025-12-24 19:49:51 - INFO - *************************************************************
+2025-12-24 19:49:51 - INFO - 开始评估数据集: reddit
+2025-12-24 19:52:42 - INFO - reddit  AP=0.9743, Acc(0.5)=0.8667, Acc(best)=0.9133, best_thres=0.1701
+2025-12-24 19:52:42 - INFO - 数据集 reddit 评估耗时: 02m 50s
+2025-12-24 19:52:42 - INFO - *************************************************************
+2025-12-24 19:52:42 - INFO - 开始评估数据集: twitter
+2025-12-24 19:53:18 - INFO - twitter  AP=0.9845, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1313
+2025-12-24 19:53:18 - INFO - 数据集 twitter 评估耗时: 00m 36s
+2025-12-24 19:53:18 - INFO - epoch 8 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch8/epoch_8_results.csv
+2025-12-24 19:53:18 - INFO - checkpoint model_epoch_8.pth 整体评估耗时: 04m 28s
+2025-12-24 19:53:18 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_9.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch9
+2025-12-24 19:54:18 - INFO - *************************************************************
+2025-12-24 19:54:18 - INFO - 开始评估数据集: facebook
+2025-12-24 19:54:38 - INFO - facebook  AP=0.9579, Acc(0.5)=0.8500, Acc(best)=0.8938, best_thres=0.2856
+2025-12-24 19:54:38 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 19:54:38 - INFO - *************************************************************
+2025-12-24 19:54:38 - INFO - 开始评估数据集: reddit
+2025-12-24 19:57:39 - INFO - reddit  AP=0.9742, Acc(0.5)=0.8687, Acc(best)=0.9133, best_thres=0.1734
+2025-12-24 19:57:39 - INFO - 数据集 reddit 评估耗时: 03m 01s
+2025-12-24 19:57:39 - INFO - *************************************************************
+2025-12-24 19:57:39 - INFO - 开始评估数据集: twitter
+2025-12-24 19:58:15 - INFO - twitter  AP=0.9847, Acc(0.5)=0.7838, Acc(best)=0.9192, best_thres=0.1303
+2025-12-24 19:58:15 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 19:58:15 - INFO - epoch 9 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch9/epoch_9_results.csv
+2025-12-24 19:58:15 - INFO - checkpoint model_epoch_9.pth 整体评估耗时: 04m 56s
+2025-12-24 19:58:15 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_10.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch10
+2025-12-24 19:59:10 - INFO - *************************************************************
+2025-12-24 19:59:10 - INFO - 开始评估数据集: facebook
+2025-12-24 19:59:30 - INFO - facebook  AP=0.9574, Acc(0.5)=0.8438, Acc(best)=0.8938, best_thres=0.2800
+2025-12-24 19:59:30 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 19:59:30 - INFO - *************************************************************
+2025-12-24 19:59:30 - INFO - 开始评估数据集: reddit
+2025-12-24 20:02:23 - INFO - reddit  AP=0.9742, Acc(0.5)=0.8667, Acc(best)=0.9127, best_thres=0.1645
+2025-12-24 20:02:23 - INFO - 数据集 reddit 评估耗时: 02m 53s
+2025-12-24 20:02:23 - INFO - *************************************************************
+2025-12-24 20:02:23 - INFO - 开始评估数据集: twitter
+2025-12-24 20:02:55 - INFO - twitter  AP=0.9847, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1251
+2025-12-24 20:02:55 - INFO - 数据集 twitter 评估耗时: 00m 32s
+2025-12-24 20:02:55 - INFO - epoch 10 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch10/epoch_10_results.csv
+2025-12-24 20:02:55 - INFO - checkpoint model_epoch_10.pth 整体评估耗时: 04m 40s
+2025-12-24 20:02:55 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_11.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch11
+2025-12-24 20:03:37 - INFO - *************************************************************
+2025-12-24 20:03:37 - INFO - 开始评估数据集: facebook
+2025-12-24 20:03:56 - INFO - facebook  AP=0.9570, Acc(0.5)=0.8438, Acc(best)=0.8938, best_thres=0.2804
+2025-12-24 20:03:56 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 20:03:56 - INFO - *************************************************************
+2025-12-24 20:03:56 - INFO - 开始评估数据集: reddit
+2025-12-24 20:06:59 - INFO - reddit  AP=0.9742, Acc(0.5)=0.8660, Acc(best)=0.9120, best_thres=0.1841
+2025-12-24 20:06:59 - INFO - 数据集 reddit 评估耗时: 03m 02s
+2025-12-24 20:06:59 - INFO - *************************************************************
+2025-12-24 20:06:59 - INFO - 开始评估数据集: twitter
+2025-12-24 20:07:35 - INFO - twitter  AP=0.9845, Acc(0.5)=0.7791, Acc(best)=0.9169, best_thres=0.1201
+2025-12-24 20:07:35 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:07:35 - INFO - epoch 11 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch11/epoch_11_results.csv
+2025-12-24 20:07:35 - INFO - checkpoint model_epoch_11.pth 整体评估耗时: 04m 39s
+2025-12-24 20:07:35 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_12.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch12
+2025-12-24 20:08:27 - INFO - *************************************************************
+2025-12-24 20:08:27 - INFO - 开始评估数据集: facebook
+2025-12-24 20:08:46 - INFO - facebook  AP=0.9570, Acc(0.5)=0.8438, Acc(best)=0.8969, best_thres=0.2814
+2025-12-24 20:08:46 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 20:08:46 - INFO - *************************************************************
+2025-12-24 20:08:46 - INFO - 开始评估数据集: reddit
+2025-12-24 20:11:49 - INFO - reddit  AP=0.9742, Acc(0.5)=0.8653, Acc(best)=0.9120, best_thres=0.1483
+2025-12-24 20:11:49 - INFO - 数据集 reddit 评估耗时: 03m 03s
+2025-12-24 20:11:49 - INFO - *************************************************************
+2025-12-24 20:11:49 - INFO - 开始评估数据集: twitter
+2025-12-24 20:12:25 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7767, Acc(best)=0.9169, best_thres=0.1215
+2025-12-24 20:12:25 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:12:25 - INFO - epoch 12 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch12/epoch_12_results.csv
+2025-12-24 20:12:25 - INFO - checkpoint model_epoch_12.pth 整体评估耗时: 04m 50s
+2025-12-24 20:12:25 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_13.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch13
+2025-12-24 20:13:18 - INFO - *************************************************************
+2025-12-24 20:13:18 - INFO - 开始评估数据集: facebook
+2025-12-24 20:13:36 - INFO - facebook  AP=0.9573, Acc(0.5)=0.8438, Acc(best)=0.8938, best_thres=0.2908
+2025-12-24 20:13:36 - INFO - 数据集 facebook 评估耗时: 00m 18s
+2025-12-24 20:13:36 - INFO - *************************************************************
+2025-12-24 20:13:36 - INFO - 开始评估数据集: reddit
+2025-12-24 20:16:29 - INFO - reddit  AP=0.9742, Acc(0.5)=0.8667, Acc(best)=0.9127, best_thres=0.1638
+2025-12-24 20:16:29 - INFO - 数据集 reddit 评估耗时: 02m 52s
+2025-12-24 20:16:29 - INFO - *************************************************************
+2025-12-24 20:16:29 - INFO - 开始评估数据集: twitter
+2025-12-24 20:17:04 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1244
+2025-12-24 20:17:04 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:17:04 - INFO - epoch 13 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch13/epoch_13_results.csv
+2025-12-24 20:17:04 - INFO - checkpoint model_epoch_13.pth 整体评估耗时: 04m 38s
+2025-12-24 20:17:04 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_14.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch14
+2025-12-24 20:18:01 - INFO - *************************************************************
+2025-12-24 20:18:01 - INFO - 开始评估数据集: facebook
+2025-12-24 20:18:22 - INFO - facebook  AP=0.9570, Acc(0.5)=0.8469, Acc(best)=0.8906, best_thres=0.2909
+2025-12-24 20:18:22 - INFO - 数据集 facebook 评估耗时: 00m 20s
+2025-12-24 20:18:22 - INFO - *************************************************************
+2025-12-24 20:18:22 - INFO - 开始评估数据集: reddit
+2025-12-24 20:21:22 - INFO - reddit  AP=0.9741, Acc(0.5)=0.8660, Acc(best)=0.9133, best_thres=0.1682
+2025-12-24 20:21:22 - INFO - 数据集 reddit 评估耗时: 03m 00s
+2025-12-24 20:21:22 - INFO - *************************************************************
+2025-12-24 20:21:22 - INFO - 开始评估数据集: twitter
+2025-12-24 20:21:58 - INFO - twitter  AP=0.9847, Acc(0.5)=0.7815, Acc(best)=0.9169, best_thres=0.1284
+2025-12-24 20:21:58 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:21:58 - INFO - epoch 14 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch14/epoch_14_results.csv
+2025-12-24 20:21:58 - INFO - checkpoint model_epoch_14.pth 整体评估耗时: 04m 53s
+2025-12-24 20:21:58 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_15.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch15
+2025-12-24 20:22:33 - INFO - *************************************************************
+2025-12-24 20:22:33 - INFO - 开始评估数据集: facebook
+2025-12-24 20:22:52 - INFO - facebook  AP=0.9576, Acc(0.5)=0.8469, Acc(best)=0.8938, best_thres=0.2927
+2025-12-24 20:22:52 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 20:22:52 - INFO - *************************************************************
+2025-12-24 20:22:52 - INFO - 开始评估数据集: reddit
+2025-12-24 20:25:53 - INFO - reddit  AP=0.9741, Acc(0.5)=0.8667, Acc(best)=0.9127, best_thres=0.1704
+2025-12-24 20:25:53 - INFO - 数据集 reddit 评估耗时: 03m 00s
+2025-12-24 20:25:53 - INFO - *************************************************************
+2025-12-24 20:25:53 - INFO - 开始评估数据集: twitter
+2025-12-24 20:26:26 - INFO - twitter  AP=0.9848, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1324
+2025-12-24 20:26:26 - INFO - 数据集 twitter 评估耗时: 00m 33s
+2025-12-24 20:26:26 - INFO - epoch 15 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch15/epoch_15_results.csv
+2025-12-24 20:26:26 - INFO - checkpoint model_epoch_15.pth 整体评估耗时: 04m 28s
+2025-12-24 20:26:26 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_16.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch16
+2025-12-24 20:26:58 - INFO - *************************************************************
+2025-12-24 20:26:58 - INFO - 开始评估数据集: facebook
+2025-12-24 20:27:16 - INFO - facebook  AP=0.9578, Acc(0.5)=0.8469, Acc(best)=0.8938, best_thres=0.2885
+2025-12-24 20:27:16 - INFO - 数据集 facebook 评估耗时: 00m 18s
+2025-12-24 20:27:16 - INFO - *************************************************************
+2025-12-24 20:27:16 - INFO - 开始评估数据集: reddit
+2025-12-24 20:30:16 - INFO - reddit  AP=0.9741, Acc(0.5)=0.8653, Acc(best)=0.9127, best_thres=0.1723
+2025-12-24 20:30:16 - INFO - 数据集 reddit 评估耗时: 03m 00s
+2025-12-24 20:30:16 - INFO - *************************************************************
+2025-12-24 20:30:16 - INFO - 开始评估数据集: twitter
+2025-12-24 20:30:51 - INFO - twitter  AP=0.9847, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1295
+2025-12-24 20:30:51 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:30:51 - INFO - epoch 16 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch16/epoch_16_results.csv
+2025-12-24 20:30:51 - INFO - checkpoint model_epoch_16.pth 整体评估耗时: 04m 25s
+2025-12-24 20:30:51 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_17.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch17
+2025-12-24 20:31:28 - INFO - *************************************************************
+2025-12-24 20:31:28 - INFO - 开始评估数据集: facebook
+2025-12-24 20:31:48 - INFO - facebook  AP=0.9569, Acc(0.5)=0.8469, Acc(best)=0.8906, best_thres=0.2808
+2025-12-24 20:31:48 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 20:31:48 - INFO - *************************************************************
+2025-12-24 20:31:48 - INFO - 开始评估数据集: reddit
+2025-12-24 20:34:49 - INFO - reddit  AP=0.9741, Acc(0.5)=0.8667, Acc(best)=0.9127, best_thres=0.1682
+2025-12-24 20:34:49 - INFO - 数据集 reddit 评估耗时: 03m 01s
+2025-12-24 20:34:49 - INFO - *************************************************************
+2025-12-24 20:34:49 - INFO - 开始评估数据集: twitter
+2025-12-24 20:35:25 - INFO - twitter  AP=0.9847, Acc(0.5)=0.7815, Acc(best)=0.9216, best_thres=0.1320
+2025-12-24 20:35:25 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:35:25 - INFO - epoch 17 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch17/epoch_17_results.csv
+2025-12-24 20:35:25 - INFO - checkpoint model_epoch_17.pth 整体评估耗时: 04m 33s
+2025-12-24 20:35:25 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_18.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch18
+2025-12-24 20:36:03 - INFO - *************************************************************
+2025-12-24 20:36:03 - INFO - 开始评估数据集: facebook
+2025-12-24 20:36:23 - INFO - facebook  AP=0.9566, Acc(0.5)=0.8469, Acc(best)=0.8875, best_thres=0.2759
+2025-12-24 20:36:23 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 20:36:23 - INFO - *************************************************************
+2025-12-24 20:36:23 - INFO - 开始评估数据集: reddit
+2025-12-24 20:39:15 - INFO - reddit  AP=0.9741, Acc(0.5)=0.8660, Acc(best)=0.9127, best_thres=0.1551
+2025-12-24 20:39:15 - INFO - 数据集 reddit 评估耗时: 02m 52s
+2025-12-24 20:39:15 - INFO - *************************************************************
+2025-12-24 20:39:15 - INFO - 开始评估数据集: twitter
+2025-12-24 20:39:48 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1216
+2025-12-24 20:39:48 - INFO - 数据集 twitter 评估耗时: 00m 32s
+2025-12-24 20:39:48 - INFO - epoch 18 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch18/epoch_18_results.csv
+2025-12-24 20:39:48 - INFO - checkpoint model_epoch_18.pth 整体评估耗时: 04m 23s
+2025-12-24 20:39:48 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_19.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch19
+2025-12-24 20:40:58 - INFO - *************************************************************
+2025-12-24 20:40:58 - INFO - 开始评估数据集: facebook
+2025-12-24 20:41:17 - INFO - facebook  AP=0.9566, Acc(0.5)=0.8469, Acc(best)=0.8875, best_thres=0.2563
+2025-12-24 20:41:17 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 20:41:17 - INFO - *************************************************************
+2025-12-24 20:41:17 - INFO - 开始评估数据集: reddit
+2025-12-24 20:44:18 - INFO - reddit  AP=0.9740, Acc(0.5)=0.8653, Acc(best)=0.9120, best_thres=0.1481
+2025-12-24 20:44:18 - INFO - 数据集 reddit 评估耗时: 03m 01s
+2025-12-24 20:44:18 - INFO - *************************************************************
+2025-12-24 20:44:18 - INFO - 开始评估数据集: twitter
+2025-12-24 20:44:54 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1300
+2025-12-24 20:44:54 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:44:54 - INFO - epoch 19 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch19/epoch_19_results.csv
+2025-12-24 20:44:54 - INFO - checkpoint model_epoch_19.pth 整体评估耗时: 05m 05s
+2025-12-24 20:44:54 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_20.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch20
+2025-12-24 20:46:22 - INFO - *************************************************************
+2025-12-24 20:46:22 - INFO - 开始评估数据集: facebook
+2025-12-24 20:46:41 - INFO - facebook  AP=0.9570, Acc(0.5)=0.8438, Acc(best)=0.8875, best_thres=0.2716
+2025-12-24 20:46:41 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 20:46:41 - INFO - *************************************************************
+2025-12-24 20:46:41 - INFO - 开始评估数据集: reddit
+2025-12-24 20:49:42 - INFO - reddit  AP=0.9740, Acc(0.5)=0.8653, Acc(best)=0.9107, best_thres=0.1733
+2025-12-24 20:49:42 - INFO - 数据集 reddit 评估耗时: 03m 01s
+2025-12-24 20:49:42 - INFO - *************************************************************
+2025-12-24 20:49:42 - INFO - 开始评估数据集: twitter
+2025-12-24 20:50:15 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1311
+2025-12-24 20:50:15 - INFO - 数据集 twitter 评估耗时: 00m 33s
+2025-12-24 20:50:15 - INFO - epoch 20 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch20/epoch_20_results.csv
+2025-12-24 20:50:15 - INFO - checkpoint model_epoch_20.pth 整体评估耗时: 05m 21s
+2025-12-24 20:50:15 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_21.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch21
+2025-12-24 20:50:49 - INFO - *************************************************************
+2025-12-24 20:50:49 - INFO - 开始评估数据集: facebook
+2025-12-24 20:51:07 - INFO - facebook  AP=0.9564, Acc(0.5)=0.8469, Acc(best)=0.8875, best_thres=0.2737
+2025-12-24 20:51:07 - INFO - 数据集 facebook 评估耗时: 00m 17s
+2025-12-24 20:51:07 - INFO - *************************************************************
+2025-12-24 20:51:07 - INFO - 开始评估数据集: reddit
+2025-12-24 20:54:05 - INFO - reddit  AP=0.9740, Acc(0.5)=0.8653, Acc(best)=0.9120, best_thres=0.1716
+2025-12-24 20:54:05 - INFO - 数据集 reddit 评估耗时: 02m 58s
+2025-12-24 20:54:05 - INFO - *************************************************************
+2025-12-24 20:54:05 - INFO - 开始评估数据集: twitter
+2025-12-24 20:54:41 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1338
+2025-12-24 20:54:41 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:54:41 - INFO - epoch 21 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch21/epoch_21_results.csv
+2025-12-24 20:54:41 - INFO - checkpoint model_epoch_21.pth 整体评估耗时: 04m 25s
+2025-12-24 20:54:41 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_22.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch22
+2025-12-24 20:55:47 - INFO - *************************************************************
+2025-12-24 20:55:47 - INFO - 开始评估数据集: facebook
+2025-12-24 20:56:07 - INFO - facebook  AP=0.9567, Acc(0.5)=0.8438, Acc(best)=0.8875, best_thres=0.2736
+2025-12-24 20:56:07 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 20:56:07 - INFO - *************************************************************
+2025-12-24 20:56:07 - INFO - 开始评估数据集: reddit
+2025-12-24 20:59:07 - INFO - reddit  AP=0.9741, Acc(0.5)=0.8647, Acc(best)=0.9120, best_thres=0.1450
+2025-12-24 20:59:07 - INFO - 数据集 reddit 评估耗时: 02m 59s
+2025-12-24 20:59:07 - INFO - *************************************************************
+2025-12-24 20:59:07 - INFO - 开始评估数据集: twitter
+2025-12-24 20:59:42 - INFO - twitter  AP=0.9847, Acc(0.5)=0.7815, Acc(best)=0.9216, best_thres=0.1268
+2025-12-24 20:59:42 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 20:59:42 - INFO - epoch 22 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch22/epoch_22_results.csv
+2025-12-24 20:59:42 - INFO - checkpoint model_epoch_22.pth 整体评估耗时: 05m 00s
+2025-12-24 20:59:42 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_23.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch23
+2025-12-24 21:00:44 - INFO - *************************************************************
+2025-12-24 21:00:44 - INFO - 开始评估数据集: facebook
+2025-12-24 21:01:03 - INFO - facebook  AP=0.9566, Acc(0.5)=0.8406, Acc(best)=0.8875, best_thres=0.2663
+2025-12-24 21:01:03 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 21:01:03 - INFO - *************************************************************
+2025-12-24 21:01:03 - INFO - 开始评估数据集: reddit
+2025-12-24 21:03:53 - INFO - reddit  AP=0.9740, Acc(0.5)=0.8647, Acc(best)=0.9120, best_thres=0.1560
+2025-12-24 21:03:53 - INFO - 数据集 reddit 评估耗时: 02m 49s
+2025-12-24 21:03:53 - INFO - *************************************************************
+2025-12-24 21:03:53 - INFO - 开始评估数据集: twitter
+2025-12-24 21:04:29 - INFO - twitter  AP=0.9845, Acc(0.5)=0.7815, Acc(best)=0.9192, best_thres=0.1267
+2025-12-24 21:04:29 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 21:04:29 - INFO - epoch 23 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch23/epoch_23_results.csv
+2025-12-24 21:04:29 - INFO - checkpoint model_epoch_23.pth 整体评估耗时: 04m 46s
+2025-12-24 21:04:29 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_24.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch24
+2025-12-24 21:05:38 - INFO - *************************************************************
+2025-12-24 21:05:38 - INFO - 开始评估数据集: facebook
+2025-12-24 21:05:57 - INFO - facebook  AP=0.9569, Acc(0.5)=0.8469, Acc(best)=0.8875, best_thres=0.2707
+2025-12-24 21:05:57 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 21:05:57 - INFO - *************************************************************
+2025-12-24 21:05:57 - INFO - 开始评估数据集: reddit
+2025-12-24 21:09:00 - INFO - reddit  AP=0.9740, Acc(0.5)=0.8653, Acc(best)=0.9120, best_thres=0.1602
+2025-12-24 21:09:00 - INFO - 数据集 reddit 评估耗时: 03m 02s
+2025-12-24 21:09:00 - INFO - *************************************************************
+2025-12-24 21:09:00 - INFO - 开始评估数据集: twitter
+2025-12-24 21:09:36 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7815, Acc(best)=0.9216, best_thres=0.1308
+2025-12-24 21:09:36 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 21:09:36 - INFO - epoch 24 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch24/epoch_24_results.csv
+2025-12-24 21:09:36 - INFO - checkpoint model_epoch_24.pth 整体评估耗时: 05m 07s
+2025-12-24 21:09:36 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_25.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch25
+2025-12-24 21:10:31 - INFO - *************************************************************
+2025-12-24 21:10:31 - INFO - 开始评估数据集: facebook
+2025-12-24 21:10:51 - INFO - facebook  AP=0.9565, Acc(0.5)=0.8469, Acc(best)=0.8875, best_thres=0.2723
+2025-12-24 21:10:51 - INFO - 数据集 facebook 评估耗时: 00m 19s
+2025-12-24 21:10:51 - INFO - *************************************************************
+2025-12-24 21:10:51 - INFO - 开始评估数据集: reddit
+2025-12-24 21:13:53 - INFO - reddit  AP=0.9741, Acc(0.5)=0.8660, Acc(best)=0.9120, best_thres=0.1711
+2025-12-24 21:13:53 - INFO - 数据集 reddit 评估耗时: 03m 01s
+2025-12-24 21:13:53 - INFO - *************************************************************
+2025-12-24 21:13:53 - INFO - 开始评估数据集: twitter
+2025-12-24 21:14:26 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7815, Acc(best)=0.9216, best_thres=0.1302
+2025-12-24 21:14:26 - INFO - 数据集 twitter 评估耗时: 00m 33s
+2025-12-24 21:14:26 - INFO - epoch 25 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch25/epoch_25_results.csv
+2025-12-24 21:14:26 - INFO - checkpoint model_epoch_25.pth 整体评估耗时: 04m 49s
+2025-12-24 21:14:26 - INFO - 开始评估 checkpoint: checkpoints/WildRF/image_denoised-attention-resnet-for-wildrf/model_epoch_26.pth -> 结果目录: TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch26
+2025-12-24 21:14:58 - INFO - *************************************************************
+2025-12-24 21:14:58 - INFO - 开始评估数据集: facebook
+2025-12-24 21:15:16 - INFO - facebook  AP=0.9564, Acc(0.5)=0.8469, Acc(best)=0.8875, best_thres=0.2714
+2025-12-24 21:15:16 - INFO - 数据集 facebook 评估耗时: 00m 17s
+2025-12-24 21:15:16 - INFO - *************************************************************
+2025-12-24 21:15:16 - INFO - 开始评估数据集: reddit
+2025-12-24 21:18:14 - INFO - reddit  AP=0.9739, Acc(0.5)=0.8660, Acc(best)=0.9127, best_thres=0.1727
+2025-12-24 21:18:14 - INFO - 数据集 reddit 评估耗时: 02m 57s
+2025-12-24 21:18:14 - INFO - *************************************************************
+2025-12-24 21:18:14 - INFO - 开始评估数据集: twitter
+2025-12-24 21:18:49 - INFO - twitter  AP=0.9846, Acc(0.5)=0.7815, Acc(best)=0.9216, best_thres=0.1318
+2025-12-24 21:18:49 - INFO - 数据集 twitter 评估耗时: 00m 35s
+2025-12-24 21:18:49 - INFO - epoch 26 的结果已保存到 TestResults/WildRF/image_denoised-attention-resnet-for-wildrf/epoch26/epoch_26_results.csv
+2025-12-24 21:18:49 - INFO - checkpoint model_epoch_26.pth 整体评估耗时: 04m 23s
+2025-12-24 21:18:49 - INFO - 本次全部验证任务总耗时: 02h 09m 14s
+2025-12-24 21:18:49 - INFO - ================================================================================

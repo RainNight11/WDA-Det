@@ -1,0 +1,3 @@
+dataset,parameter,value,image_type,count,mean_similarity,std_similarity
+wukong,Noise STD,0.1,Real,6000,0.878638871461153,0.04748499669450526
+wukong,Noise STD,0.1,Fake,6000,0.9090731685360273,0.03603880476801036

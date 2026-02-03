@@ -1,0 +1,3 @@
+dataset,parameter,value,image_type,count,mean_similarity,std_similarity
+Glide,Noise STD,0.1,Real,600,0.905465850730737,0.07367022052803986
+Glide,Noise STD,0.1,Fake,600,0.8203557029366493,0.11239992615549478
