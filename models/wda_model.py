@@ -208,7 +208,8 @@ class WDAModel(nn.Module):
                  gate_smooth_trainable=False,    # smoother frozen by default
                  residual_tau=0.15,
                  eps=1e-6,
-                 use_weighted_pool=True):
+                 use_weighted_pool=False,
+                 norm_type="ln"):
         super(WDAModel, self).__init__()
         self.bk_name = backbone_name
         self.residual_tau = float(residual_tau)
@@ -257,7 +258,14 @@ class WDAModel(nn.Module):
         self.register_buffer("pixel_mean", mean)
         self.register_buffer("pixel_std", std)
 
-        self.bn = nn.BatchNorm1d(feat_dim)
+        if norm_type == "bn":
+            self.bn = nn.BatchNorm1d(feat_dim)
+        elif norm_type == "ln":
+            self.bn = nn.LayerNorm(feat_dim)
+        elif norm_type in ("none", "identity"):
+            self.bn = nn.Identity()
+        else:
+            raise ValueError(f"Unsupported norm_type: {norm_type}")
         self.ClassifyNet = nn.Sequential(nn.Linear(feat_dim, num_classes))
 
         self.token_gate = ResidualTokenGate(
