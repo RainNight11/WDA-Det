@@ -13,7 +13,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # 或 ""强制CPU
 
 # 导入你的模型
 sys.path.append('/data_B/tianyu/code/ICME-Attention')
-from models.rfnt_models import RFNTModel
+from models.wda_model import WDAModel
 
 def denormalize(tensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
     """反归一化"""
@@ -230,7 +230,7 @@ def save_individual_images(x, x_tilde, r, att_logits, A, x_att, pred, save_dir='
 # 主程序
 if __name__ == "__main__":
     # 1. 加载模型
-    model = RFNTModel(
+    model = WDAModel(
         backbone_name="CLIP:ViT-L/14",
         num_classes=2,
         alpha=1.0,

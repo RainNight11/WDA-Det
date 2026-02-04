@@ -52,19 +52,19 @@ class ConfigTrain(BaseConfig):
 ########################################
 EXPERIMENT_CONFIGS = {
 "token_gate_v1": dict(
-        name="token_gate_v1",  # 实验名（保存目录用）
+        name="token_gate_v1_wda",  # 实验名（保存目录用）
         arch="RFNT-CLIP:ViT-L/14",  # token-wise gating 仅支持 CLIP-ViT
         loss="loss_bce",
         lr=0.001,
-        niter=20,
+        niter=6,
         gpu_ids="0",
         batch_size=32,
         num_threads=24,
 
-        data_mode="wang2020",
-        data_name="Progan",
+        data_mode="WildRF",
+        data_name="WildRF",
         # TODO: 更新为你的数据路径
-        wang2020_data_path="/your/dataset/path",
+        wang2020_data_path="/data_B/tianyu/dataset/WildRF/",
         last_epoch=-1,
 
         fix_backbone=True,

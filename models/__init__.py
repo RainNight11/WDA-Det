@@ -1,6 +1,6 @@
 from .clip_models import CLIPModel
 from .imagenet_models import ImagenetModel
-from .rfnt_models import RFNTModel
+from .wda_model import WDAModel
 from .moe_models import MoEDDModel
 
 
@@ -52,7 +52,7 @@ def get_model(name):
     elif name.startswith("CLIP:"):
         return CLIPModel(name[5:])
     elif name.startswith("RFNT"):
-        return RFNTModel(name[5:])
+        return WDAModel(name[5:])
     elif name.startswith("MoEDD"):
         return MoEDDModel("MoEDD")
     else:

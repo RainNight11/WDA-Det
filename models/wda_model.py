@@ -141,8 +141,11 @@ class NPRResidualAttention(nn.Module):
         return A
 
 
+# -----------------------------
+# Residual -> Token Gate
+# -----------------------------
 class ResidualTokenGate(nn.Module):
-    def __init__(self, hidden_dim=16, smooth=True):
+    def __init__(self, hidden_dim=16, smooth=True, smooth_trainable=False):
         super().__init__()
         self.mlp = nn.Sequential(
             nn.Linear(1, hidden_dim),
@@ -152,7 +155,11 @@ class ResidualTokenGate(nn.Module):
         )
         if smooth:
             self.smoother = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1, bias=False)
-            nn.init.constant_(self.smoother.weight, 1.0 / 9.0)
+            with torch.no_grad():
+                self.smoother.weight.fill_(1.0 / 9.0)
+            if not smooth_trainable:
+                for p in self.smoother.parameters():
+                    p.requires_grad_(False)
         else:
             self.smoother = None
 
@@ -161,7 +168,7 @@ class ResidualTokenGate(nn.Module):
         p: [B, N, 1]
         grid_size: (Hp, Wp)
         """
-        w = self.mlp(p)
+        w = self.mlp(p)  # [B,N,1]
         if self.smoother is not None:
             B, N, _ = w.shape
             hp, wp = grid_size
@@ -171,42 +178,67 @@ class ResidualTokenGate(nn.Module):
         return w
 
 
-class RFNTModel(nn.Module):
+class WDAModel(nn.Module):
     """
-    Token-wise feature gating version:
-        x -> wavelet denoise -> x_w (clean)
-        r = x_raw - x_w_raw
-        E = backbone_tokens(x_w)  # patch tokens only
-        W = gate(r)               # token-wise gate
-        E' = E * (1 + alpha * W)
-        z = mean(E')
-        z -> BN -> Linear -> pred
-    """
+    Token-wise feature gating version (Scheme A):
 
-    def __init__(self, backbone_name, num_classes=1,
+        x (normalized) -> denormalize -> x_raw
+        x_raw -> wavelet denoise -> xw_raw
+        r_raw = x_raw - xw_raw                      (pixel-domain residual, NOT fed into backbone)
+        xw_raw -> normalize -> xw
+
+        tokens = backbone_tokens(xw)                (patch tokens)
+        p = pool(||tanh(r_raw/tau)||) to patch grid (token residual energy)
+        w = gate(p)                                 (token-wise weights)
+        gated_tokens = patch_tokens * (1 + alpha*w)
+        z = weighted mean (optional) or mean
+        pred = Linear(BN(z))
+
+    Note:
+        - Assumes square inputs so that num_tokens is a perfect square.
+        - DINOv2 branch currently falls back to global embedding (no token gating).
+    """
+    def __init__(self,
+                 backbone_name,
+                 num_classes=1,
                  alpha=1.0,
+                 alpha_max=10.0,                 # set None to disable clamp
                  gate_hidden_dim=16,
                  gate_smooth=True,
-                 residual_tau=0.15):
-        super(RFNTModel, self).__init__()
+                 gate_smooth_trainable=False,    # smoother frozen by default
+                 residual_tau=0.15,
+                 eps=1e-6,
+                 use_weighted_pool=True):
+        super(WDAModel, self).__init__()
         self.bk_name = backbone_name
-        self.residual_tau = residual_tau
+        self.residual_tau = float(residual_tau)
+        self.alpha_max = alpha_max
+        self.eps = float(eps)
+        self.use_weighted_pool = use_weighted_pool
 
         # backbone
         if backbone_name.startswith("CLIP"):
-            backbone_name = backbone_name[5:]  # e.g. "ViT-L/14"
-            self.pre_model, self.preprocess = clip.load(backbone_name, device="cpu")
-            feat_dim = CHANNELS[backbone_name]
+            backbone_name_ = backbone_name[5:]  # e.g. "ViT-L/14"
+            self.pre_model, self.preprocess = clip.load(backbone_name_, device="cpu")
+            feat_dim = CHANNELS[backbone_name_]
+
             self.use_token_gate = (
                 hasattr(self.pre_model, "encode_image_tokens")
                 and hasattr(self.pre_model, "visual")
                 and hasattr(self.pre_model.visual, "transformer")
             )
-            if self.use_token_gate and hasattr(self.pre_model.visual, "conv1"):
-                self.patch_size = int(self.pre_model.visual.conv1.stride[0])
+
+            # For residual pooling; in CLIP ViT, conv1 stride usually equals patch size
+            if self.use_token_gate and hasattr(self.pre_model.visual, "conv1") and hasattr(self.pre_model.visual.conv1, "stride"):
+                try:
+                    self.patch_size = int(self.pre_model.visual.conv1.stride[0])
+                except Exception:
+                    self.patch_size = None
             else:
                 self.patch_size = None
+
             stat_key = "clip"
+
         elif backbone_name.startswith("DINOv2"):
             model_tag = backbone_name.split(":")[1]
             model_tag = model_tag.replace("-", "").lower()
@@ -216,6 +248,7 @@ class RFNTModel(nn.Module):
             self.use_token_gate = False
             self.patch_size = None
             stat_key = "dinov2"
+
         else:
             raise ValueError(f"Unsupported backbone_name: {backbone_name}")
 
@@ -227,31 +260,59 @@ class RFNTModel(nn.Module):
         self.bn = nn.BatchNorm1d(feat_dim)
         self.ClassifyNet = nn.Sequential(nn.Linear(feat_dim, num_classes))
 
-        self.token_gate = ResidualTokenGate(hidden_dim=gate_hidden_dim, smooth=gate_smooth)
-        alpha_init = math.log(math.exp(alpha) - 1.0)
+        self.token_gate = ResidualTokenGate(
+            hidden_dim=gate_hidden_dim,
+            smooth=gate_smooth,
+            smooth_trainable=gate_smooth_trainable
+        )
+
+        # alpha param (safe inverse softplus)
+        a = float(alpha)
+        if a <= 0:
+            alpha_init = -10.0  # softplus(-10) ~ 0, avoids -inf
+        else:
+            # softplus^{-1}(a) = log(exp(a)-1); use expm1 for stability
+            alpha_init = math.log(math.expm1(a) + 1e-12)
         self.alpha_param = nn.Parameter(torch.tensor(alpha_init, dtype=torch.float32))
 
-    def backbone_extract(self, x):
-        if self.bk_name.startswith("DINOv2"):
-            return self.pre_model(x)
-        else:
-            return self.pre_model.encode_image(x)
-
+    # ---------- small helpers ----------
     def _denormalize(self, x):
         return x * self.pixel_std + self.pixel_mean
 
     def _normalize(self, x):
         return (x - self.pixel_mean) / self.pixel_std
 
+    def _get_alpha(self):
+        alpha = F.softplus(self.alpha_param)
+        if self.alpha_max is not None:
+            alpha = torch.clamp(alpha, max=float(self.alpha_max))
+        return alpha
+
+    def backbone_extract(self, x):
+        if self.bk_name.startswith("DINOv2"):
+            out = self.pre_model(x)
+            # IMPORTANT: ensure out is [B, D]; if not, adapt here.
+            return out
+        else:
+            return self.pre_model.encode_image(x)
+
     def _residual_to_tokens(self, r_raw, grid_size):
-        r_norm = torch.tanh(r_raw / self.residual_tau)
-        energy = torch.linalg.vector_norm(r_norm, ord=2, dim=1, keepdim=True)
+        """
+        r_raw: [B,3,H,W] in pixel domain
+        return p: [B,N,1]
+        """
+        tau = max(self.residual_tau, 1e-8)
+        r_norm = torch.tanh(r_raw / tau)
+        energy = torch.linalg.vector_norm(r_norm, ord=2, dim=1, keepdim=True)  # [B,1,H,W]
+
+        # If patch_size known, average-pool to token grid; else adaptive to grid_size.
         if self.patch_size is not None:
             pooled = F.avg_pool2d(energy, kernel_size=self.patch_size, stride=self.patch_size)
+            if pooled.shape[-2:] != grid_size:
+                pooled = F.adaptive_avg_pool2d(energy, grid_size)
         else:
             pooled = F.adaptive_avg_pool2d(energy, grid_size)
-        if pooled.shape[-2:] != grid_size:
-            pooled = F.adaptive_avg_pool2d(energy, grid_size)
+
         p = pooled.flatten(2).transpose(1, 2)  # [B, N, 1]
         return p
 
@@ -308,33 +369,44 @@ class RFNTModel(nn.Module):
     # -------- Forward --------
     def forward(self, x, return_feature=False, return_attention=False):
         """
-        x: [B,3,H,W]
+        x: [B,3,H,W] (MUST be normalized with self.pixel_mean/std)
         """
-        # 1) denoise in pixel space
+        # 1) wavelet denoise in pixel space
         x_raw = self._denormalize(x)
         xw_raw = self.denoise(x_raw)  # [B,3,H,W]
         r_raw = x_raw - xw_raw
         xw = self._normalize(xw_raw)
 
+        # 2) token-wise gating (only if CLIP provides encode_image_tokens)
         if self.use_token_gate:
             tokens = self.pre_model.encode_image_tokens(xw)  # [B, 1+N, C]
-            patch_tokens = tokens[:, 1:, :]
-            bsz, num_tokens, _ = patch_tokens.shape
+            patch_tokens = tokens[:, 1:, :]                  # [B, N, C]
+
+            bsz, num_tokens, dim = patch_tokens.shape
             hp = int(math.sqrt(num_tokens))
             wp = num_tokens // hp
             if hp * wp != num_tokens:
                 raise ValueError(f"Token grid is not square: N={num_tokens}")
 
-            p = self._residual_to_tokens(r_raw, grid_size=(hp, wp))
-            w = self.token_gate(p, grid_size=(hp, wp))
-            alpha = F.softplus(self.alpha_param)
+            p = self._residual_to_tokens(r_raw, grid_size=(hp, wp))  # [B,N,1]
+            w = self.token_gate(p, grid_size=(hp, wp))               # [B,N,1]
+            alpha = self._get_alpha()
+
             gated_tokens = patch_tokens * (1.0 + alpha * w)
-            z = gated_tokens.mean(dim=1)
+
+            # pooling
+            if self.use_weighted_pool:
+                w_sum = w.sum(dim=1, keepdim=True).clamp_min(self.eps)  # [B,1,1]
+                z = (gated_tokens * w).sum(dim=1) / w_sum.squeeze(1)    # [B,C]
+            else:
+                z = gated_tokens.mean(dim=1)
+
             feat_bn = self.bn(z)
             pred = self.ClassifyNet(feat_bn)
             return pred, z
 
-        feat = self.backbone_extract(xw)  # [B,D]
+        # 3) fallback global feature path
+        feat = self.backbone_extract(xw)  # expect [B,D]
         feat_bn = self.bn(feat)
         pred = self.ClassifyNet(feat_bn)
         return pred, feat_bn
