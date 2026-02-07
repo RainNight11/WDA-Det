@@ -4,7 +4,7 @@ from configs.base_config import BaseConfig
 from options.train_options import TrainOptions
 
 
-EXPERIMENT_NAME = "token_gate_v1"   # 选择想要train的实验组
+EXPERIMENT_NAME = "wda_consistency_v1"   # 选择想要train的实验组
 ########################################
 # ConfigTrain：默认参数 + 实验配置覆盖
 ########################################
@@ -51,9 +51,9 @@ class ConfigTrain(BaseConfig):
 # 2. 定义所有实验的配置字典
 ########################################
 EXPERIMENT_CONFIGS = {
-"token_gate_v1": dict(
-        name="token_gate_v1_wda",  # 实验名（保存目录用）
-        arch="RFNT-CLIP:ViT-L/14",  # token-wise gating 仅支持 CLIP-ViT
+"wda_consistency_v1": dict(
+        name="wda_consistency_v1",  # 实验名（保存目录用）
+        arch="RFNT-CLIP:ViT-L/14",  # WDA consistency model
         loss="loss_bce",
         lr=0.001,
         niter=6,
@@ -72,6 +72,13 @@ EXPERIMENT_CONFIGS = {
         jpg_qual=[50, 100],
         blur_prob=0.0,
         blur_sig=[0.0, 3.0],
+        consistency_lambda=0.2,
+        consistency_warmup=0.1,
+        consistency_noise_std=0.01,
+        consistency_blur_prob=0.5,
+        consistency_blur_sigma_min=0.5,
+        consistency_blur_sigma_max=1.2,
+        consistency_resize_scale=0.1,
     ),
 "image-denoised-clip": dict(
         name="image-denoised-clip",  # 实验名（保存目录用）

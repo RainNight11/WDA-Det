@@ -1,6 +1,6 @@
 from .clip_models import CLIPModel
 from .imagenet_models import ImagenetModel
-from .wda_model import WDAModel
+from .wda_consistency_model import WDAModel
 from .moe_models import MoEDDModel
 
 

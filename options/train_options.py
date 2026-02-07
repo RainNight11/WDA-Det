@@ -20,6 +20,13 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--niter', type=int, default=15, help='total epoches')  # epoch
         parser.add_argument('--beta1', type=float, default=0.9, help='momentum term of adam')
         parser.add_argument('--lr', type=float, default=0.0001, help='initial learning rate for adam')
+        parser.add_argument('--consistency_lambda', type=float, default=0.0, help='weight for consistency loss; 0 disables')
+        parser.add_argument('--consistency_warmup', type=float, default=0.1, help='warmup ratio of total steps')
+        parser.add_argument('--consistency_noise_std', type=float, default=0.01, help='max noise std for consistency aug')
+        parser.add_argument('--consistency_blur_prob', type=float, default=0.5, help='probability to apply blur in consistency aug')
+        parser.add_argument('--consistency_blur_sigma_min', type=float, default=0.5, help='min gaussian sigma for blur aug')
+        parser.add_argument('--consistency_blur_sigma_max', type=float, default=1.2, help='max gaussian sigma for blur aug')
+        parser.add_argument('--consistency_resize_scale', type=float, default=0.1, help='resize scale range for consistency aug')
 
         self.isTrain = True
         return parser

@@ -118,6 +118,7 @@ if __name__ == '__main__':
 
     data_loader = create_dataloader(opt)
     val_loader = create_dataloader(val_opt)
+    model.set_consistency_total_steps(len(data_loader) * opt.niter)
 
     # === Step 6: TensorBoard 日志 ===
     train_writer = SummaryWriter(os.path.join(opt.checkpoints_dir, opt.name, "train"))

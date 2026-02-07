@@ -3,6 +3,7 @@ import os
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from networks.base_model import BaseModel, init_weights
 import sys
 from models import get_model
@@ -37,12 +38,13 @@ class Trainer(BaseModel):
         if opt.arch.startswith("RFNT"):
             # 训练的层
             param_names = [
-                "bn",
                 "ClassifyNet",
                 "noise_generator",
                 "pooling",
                 "token_gate",
-                "alpha_param"
+                "alpha_param",
+                "projector",
+                "norm"
             ]
 
         elif opt.arch.startswith("CLIP:"):
@@ -95,6 +97,14 @@ class Trainer(BaseModel):
             self.load_networks()  # 加载模型和优化器的状态
 
         self.loss_fn = nn.BCEWithLogitsLoss()
+        self.consistency_lambda = getattr(opt, "consistency_lambda", 0.0)
+        self.consistency_warmup = getattr(opt, "consistency_warmup", 0.0)
+        self.consistency_noise_std = getattr(opt, "consistency_noise_std", 0.0)
+        self.consistency_blur_prob = getattr(opt, "consistency_blur_prob", 0.0)
+        self.consistency_blur_sigma_min = getattr(opt, "consistency_blur_sigma_min", 0.0)
+        self.consistency_blur_sigma_max = getattr(opt, "consistency_blur_sigma_max", 0.0)
+        self.consistency_resize_scale = getattr(opt, "consistency_resize_scale", 0.0)
+        self.consistency_total_steps = None
 
 
     def load_networks(self):
@@ -123,10 +133,64 @@ class Trainer(BaseModel):
                 return False
         return True
 
+    def set_consistency_total_steps(self, total_steps):
+        self.consistency_total_steps = max(int(total_steps), 0)
+
     def set_input(self, input):
         self.input = input[0].to(self.device)
         self.label = input[1].to(self.device).float()
 
+    def _get_module(self):
+        if isinstance(self.model, torch.nn.DataParallel):
+            return self.model.module
+        return self.model
+
+    def _consistency_weight(self):
+        if self.consistency_lambda <= 0:
+            return 0.0
+        if not self.consistency_total_steps or self.consistency_warmup <= 0:
+            return self.consistency_lambda
+        warmup_steps = int(self.consistency_total_steps * self.consistency_warmup)
+        warmup_steps = max(warmup_steps, 1)
+        scale = min(1.0, float(self.total_steps) / warmup_steps)
+        return self.consistency_lambda * scale
+
+    def _gaussian_blur(self, x, sigma):
+        if sigma <= 0:
+            return x
+        if sigma < 0.8:
+            ksize = 3
+        else:
+            ksize = 5
+        half = ksize // 2
+        coords = torch.arange(-half, half + 1, device=x.device, dtype=x.dtype)
+        kernel_1d = torch.exp(-(coords ** 2) / (2 * sigma * sigma))
+        kernel_1d = kernel_1d / kernel_1d.sum()
+        kernel_2d = kernel_1d[:, None] * kernel_1d[None, :]
+        kernel_2d = kernel_2d.view(1, 1, ksize, ksize)
+        kernel = kernel_2d.repeat(x.shape[1], 1, 1, 1)
+        return F.conv2d(x, kernel, padding=half, groups=x.shape[1])
+
+    def _consistency_augment(self, x):
+        out = x
+        if self.consistency_resize_scale > 0:
+            scale = 1.0 + (torch.rand(1, device=x.device).item() * 2 - 1) * self.consistency_resize_scale
+            h, w = out.shape[-2:]
+            nh = max(1, int(round(h * scale)))
+            nw = max(1, int(round(w * scale)))
+            out = F.interpolate(out, size=(nh, nw), mode="bilinear", align_corners=False)
+            out = F.interpolate(out, size=(h, w), mode="bilinear", align_corners=False)
+
+        if self.consistency_blur_prob > 0 and torch.rand(1, device=x.device).item() < self.consistency_blur_prob:
+            sigma_min = max(self.consistency_blur_sigma_min, 0.0)
+            sigma_max = max(self.consistency_blur_sigma_max, sigma_min)
+            sigma = float(torch.empty(1, device=x.device).uniform_(sigma_min, sigma_max).item())
+            out = self._gaussian_blur(out, sigma)
+
+        if self.consistency_noise_std > 0:
+            noise_std = float(torch.empty(1, device=x.device).uniform_(0.0, self.consistency_noise_std).item())
+            out = out + torch.randn_like(out) * noise_std
+        return out
     def forward(self):
         # self.output, self.cos_sim = self.model(self.input)
         if self.opt.arch.startswith("RFNT"):
@@ -173,6 +237,21 @@ class Trainer(BaseModel):
     def get_loss(self):
         loss_bce = self.loss_fn(self.output.squeeze(1), self.label)
         if self.opt.arch.startswith("RFNT"):
+            if self.consistency_lambda > 0:
+                module = self._get_module()
+                if hasattr(module, "denoise_and_normalize") and hasattr(module, "forward_denoised"):
+                    xw = module.denoise_and_normalize(self.input)
+                    xw1 = self._consistency_augment(xw)
+                    xw2 = self._consistency_augment(xw)
+                    pred1, _, proj1 = module.forward_denoised(xw1, return_projected=True)
+                    with torch.no_grad():
+                        _, _, proj2 = module.forward_denoised(xw2, return_projected=True)
+                    loss_bce = self.loss_fn(pred1.squeeze(1), self.label)
+                    z1 = F.normalize(proj1, dim=1)
+                    z2 = F.normalize(proj2, dim=1)
+                    cons_loss = 1.0 - (z1 * z2).sum(dim=1).mean()
+                    weight = self._consistency_weight()
+                    return loss_bce + weight * cons_loss
             if self.opt.loss == "loss_t":
                     loss_cov = self.get_covariance_loss(self.process_feature, self.label)
                     return loss_cov + loss_bce
@@ -185,10 +264,11 @@ class Trainer(BaseModel):
         else:
             return loss_bce
     def optimize_parameters(self):
-        self.forward()
-        self.loss = self.get_loss()
+        if self.opt.arch.startswith("RFNT") and self.consistency_lambda > 0:
+            self.loss = self.get_loss()
+        else:
+            self.forward()
+            self.loss = self.get_loss()
         self.optimizer.zero_grad()
         self.loss.backward()
         self.optimizer.step()
-
-
