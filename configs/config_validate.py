@@ -4,17 +4,17 @@ import os
 ########################################
 # 1. 选择当前要用的验证配置
 ########################################
-VAL_EXPERIMENT_NAME = "wda_consistency_v1"   # 在这里切换：wildrf_vitl14 / fdmas_dinov2 等
+VAL_EXPERIMENT_NAME = "wda_consistency_v1_wildRF"   # 在这里切换：wildrf_vitl14 / fdmas_dinov2 等
 
 
 ########################################
 # 2. 定义所有验证实验的配置字典
 ########################################
 VAL_EXPERIMENT_CONFIGS = {
-    "wda_consistency_v1": dict(
+    "wda_consistency_v1_WildRF": dict(
         arch="RFNT-CLIP:ViT-L/14",
         result_folder="TestResults/WildRF",
-        batch_size=128,
+        batch_size=64,
         gpu_ids="0",
         # 加载哪个 checkpoint 来测试
         checkpoint_dir="checkpoints/WildRF/wda_consistency_v1",
@@ -24,10 +24,28 @@ VAL_EXPERIMENT_CONFIGS = {
         disable_ssl_verify=False,
 
         # 测试用的数据根目录
-        dataroot="/data_B/tianyu/dataset/WildRF/test/",
+        dataroot="/hy-tmp/WildRF/test/",
         data_mode="RFNT_WildRF",
         # 测试哪个 epoch：可以是 '2' 或 '7-10'
-        val_epoch="0-5",
+        val_epoch="5",
+    ),
+    "wda_consistency_v1_fdmas": dict(
+        arch="RFNT-CLIP:ViT-L/14",
+        result_folder="TestResults/fdmas",
+        batch_size=64,
+        gpu_ids="0",
+        # 加载哪个 checkpoint 来测试
+        checkpoint_dir="checkpoints/WildRF/wda_consistency_v1",
+        max_sample=None,
+        jpeg_quality=None,
+        gaussian_sigma=None,
+        disable_ssl_verify=False,
+
+        # 测试用的数据根目录
+        dataroot="/hy-tmp/WildRF/test/",
+        data_mode="RFNT_WildRF",
+        # 测试哪个 epoch：可以是 '2' 或 '7-10'
+        val_epoch="5",
     ),
      # 
     "image-denoised-clip": dict(

@@ -131,9 +131,13 @@ class RealFakeDataset(Dataset):
         print("mean and std stats are from: ", stat_from)
         if '2b' not in opt.arch:
             print ("using Official CLIP's normalization")
+            if opt.isTrain and opt.data_aug:
+                aug_func = transforms.Lambda(lambda img: data_augment(img, opt))
+            else:
+                aug_func = transforms.Lambda(lambda img: img)
             self.transform = transforms.Compose([
                 rz_func,
-                transforms.Lambda(lambda img: data_augment(img, opt)),
+                aug_func,
                 crop_func,
                 flip_func,
                 transforms.ToTensor(),

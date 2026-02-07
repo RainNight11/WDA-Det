@@ -34,9 +34,14 @@ class WDAModel(nn.Module):
         Inference: x -> denoise -> xw -> f -> g
         Training: consistency between two lightly augmented xw views (stop-grad teacher)
     """
-    def __init__(self, backbone_name, num_classes=1, proj_dim=256, norm_type="bn"):
+    def __init__(self, backbone_name, num_classes=1, proj_dim=256, norm_type="bn",
+                 wavelet_name="db4", wavelet_levels=3, wavelet_theta_init=0.02,
+                 learn_wavelet=False):
         super(WDAModel, self).__init__()
         self.bk_name = backbone_name
+        self.wavelet_name = wavelet_name
+        self.wavelet_levels = int(wavelet_levels)
+        self.learn_wavelet = bool(learn_wavelet)
 
         if backbone_name.startswith("CLIP"):
             backbone_name_ = backbone_name[5:]
@@ -76,6 +81,33 @@ class WDAModel(nn.Module):
             nn.Linear(proj_dim, proj_dim),
         )
 
+        # ---- Learnable wavelet shrinkage (Scheme A) ----
+        wavelet = pywt.Wavelet(self.wavelet_name)
+        dec_lo = torch.tensor(wavelet.dec_lo[::-1], dtype=torch.float32)
+        dec_hi = torch.tensor(wavelet.dec_hi[::-1], dtype=torch.float32)
+        rec_lo = torch.tensor(wavelet.rec_lo[::-1], dtype=torch.float32)
+        rec_hi = torch.tensor(wavelet.rec_hi[::-1], dtype=torch.float32)
+
+        ll = torch.ger(dec_lo, dec_lo)
+        lh = torch.ger(dec_lo, dec_hi)
+        hl = torch.ger(dec_hi, dec_lo)
+        hh = torch.ger(dec_hi, dec_hi)
+        dwt_filters = torch.stack([ll, lh, hl, hh], dim=0).unsqueeze(1)  # [4,1,k,k]
+
+        rll = torch.ger(rec_lo, rec_lo)
+        rlh = torch.ger(rec_lo, rec_hi)
+        rhl = torch.ger(rec_hi, rec_lo)
+        rhh = torch.ger(rec_hi, rec_hi)
+        iwt_filters = torch.stack([rll, rlh, rhl, rhh], dim=0).unsqueeze(1)
+
+        self.register_buffer("dwt_filters", dwt_filters)
+        self.register_buffer("iwt_filters", iwt_filters)
+        self.wavelet_pad = int(dec_lo.numel() // 2 - 1)
+
+        theta_init = torch.full((self.wavelet_levels, 3, 3), float(wavelet_theta_init))
+        self.wavelet_theta = nn.Parameter(theta_init)
+        self.wavelet_theta.requires_grad_(self.learn_wavelet)
+
     # ---------- small helpers ----------
     def _denormalize(self, x):
         return x * self.pixel_std + self.pixel_mean
@@ -102,37 +134,58 @@ class WDAModel(nn.Module):
             return pred, feat, proj
         return pred, feat
 
-    # -------- Wavelet denoise (db4 + BayesShrink) --------
-    def denoise(self, image):
-        is_torch = isinstance(image, torch.Tensor)
-        if is_torch:
-            device = image.device
-            dtype = image.dtype
-            image_np = image.detach().cpu().numpy()
-        else:
-            image_np = image
+    # -------- Wavelet denoise (learnable soft-threshold) --------
+    def _soft_threshold(self, x, theta):
+        return torch.sign(x) * F.relu(torch.abs(x) - theta)
 
-        if len(image_np.shape) == 4:  # [B,C,H,W]
+    def _dwt2(self, x):
+        B, C, H, W = x.shape
+        pad = self.wavelet_pad
+        if pad > 0:
+            x = F.pad(x, (pad, pad, pad, pad), mode="reflect")
+
+        filters = self.dwt_filters.to(device=x.device, dtype=x.dtype)
+        weight = filters.repeat(C, 1, 1, 1)  # [4*C,1,k,k]
+        y = F.conv2d(x, weight, stride=2, padding=0, groups=C)
+        y = y.view(B, C, 4, y.shape[-2], y.shape[-1])
+        ll, lh, hl, hh = y[:, :, 0], y[:, :, 1], y[:, :, 2], y[:, :, 3]
+        return ll, (lh, hl, hh), (H, W)
+
+    def _idwt2(self, ll, details, out_size):
+        lh, hl, hh = details
+        B, C, H, W = ll.shape
+        y = torch.stack([ll, lh, hl, hh], dim=2).reshape(B, 4 * C, H, W)
+        filters = self.iwt_filters.to(device=ll.device, dtype=ll.dtype)
+        weight = filters.repeat(C, 1, 1, 1)
+        x = F.conv_transpose2d(y, weight, stride=2, padding=0, groups=C)
+        pad = self.wavelet_pad
+        if pad > 0:
+            h, w = out_size
+            x = x[..., pad:pad + h, pad:pad + w]
+        return x
+
+    def _denoise_pywt(self, image: torch.Tensor):
+        device = image.device
+        dtype = image.dtype
+        image_np = image.detach().cpu().numpy()
+
+        if image_np.ndim == 4:
             denoised_batch = []
             for b in range(image_np.shape[0]):
-                denoised_batch.append(self._denoise_single(image_np[b]))
+                denoised_batch.append(self._denoise_single_pywt(image_np[b]))
             result = np.stack(denoised_batch, axis=0)
-        elif len(image_np.shape) == 3:  # [C,H,W]
-            result = self._denoise_single(image_np)
+        elif image_np.ndim == 3:
+            result = self._denoise_single_pywt(image_np)
         else:
             raise ValueError(f"Unsupported input shape: {image_np.shape}")
 
-        if is_torch:
-            result = torch.from_numpy(result).to(device=device, dtype=dtype)
-        return result
+        return torch.from_numpy(result).to(device=device, dtype=dtype)
 
-    def _denoise_single(self, image):
+    def _denoise_single_pywt(self, image_np):
         denoised_channels = []
-        C, H, W = image.shape
-
+        C, H, W = image_np.shape
         for i in range(C):
-            coeffs = pywt.wavedec2(image[i], 'db4', level=3)
-
+            coeffs = pywt.wavedec2(image_np[i], self.wavelet_name, level=self.wavelet_levels)
             coeffs_denoised = [coeffs[0]]
             for j in range(1, len(coeffs)):
                 cH, cV, cD = coeffs[j]
@@ -144,13 +197,44 @@ class WDAModel(nn.Module):
                 cH = np.sign(cH) * np.maximum(np.abs(cH) - threshold, 0)
                 cV = np.sign(cV) * np.maximum(np.abs(cV) - threshold, 0)
                 cD = np.sign(cD) * np.maximum(np.abs(cD) - threshold, 0)
-
                 coeffs_denoised.append((cH, cV, cD))
 
-            denoised = pywt.waverec2(coeffs_denoised, 'db4')
+            denoised = pywt.waverec2(coeffs_denoised, self.wavelet_name)
             denoised_channels.append(denoised[:H, :W])
 
-        return np.stack(denoised_channels, axis=0)  # [C,H,W]
+        return np.stack(denoised_channels, axis=0)
+
+    def denoise(self, image):
+        if not isinstance(image, torch.Tensor):
+            raise ValueError("Wavelet denoise expects torch.Tensor input.")
+        if image.dim() != 4:
+            raise ValueError(f"Unsupported input shape: {image.shape}")
+        if image.shape[1] != 3:
+            raise ValueError("Wavelet denoise currently supports 3-channel images only.")
+
+        if not self.learn_wavelet:
+            return self._denoise_pywt(image)
+
+        ll = image
+        details_list = []
+        sizes = []
+
+        for level in range(self.wavelet_levels):
+            ll, (lh, hl, hh), size = self._dwt2(ll)
+            sizes.append(size)
+            theta = F.softplus(self.wavelet_theta[level])  # [3,3]
+            theta_lh = theta[0].view(1, 3, 1, 1)
+            theta_hl = theta[1].view(1, 3, 1, 1)
+            theta_hh = theta[2].view(1, 3, 1, 1)
+            lh = self._soft_threshold(lh, theta_lh)
+            hl = self._soft_threshold(hl, theta_hl)
+            hh = self._soft_threshold(hh, theta_hh)
+            details_list.append((lh, hl, hh))
+
+        for level in reversed(range(self.wavelet_levels)):
+            ll = self._idwt2(ll, details_list[level], sizes[level])
+        return ll
+
 
     # -------- Forward (single-path inference) --------
     def forward(self, x, return_feature=False, return_attention=False):

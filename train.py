@@ -20,11 +20,14 @@ def get_val_opt(opt):
     val_opt.isTrain = False
     val_opt.no_resize = False
     val_opt.no_crop = False
+    val_opt.no_flip = True
     val_opt.serial_batches = True
     val_opt.data_label = 'val'
     val_opt.jpg_method = ['pil']
     val_opt.arch = opt.arch
     val_opt.data_mode = opt.data_mode
+    val_opt.blur_prob = 0.0
+    val_opt.jpg_prob = 0.0
 
     if len(val_opt.blur_sig) == 2:
         b_sig = val_opt.blur_sig
@@ -119,6 +122,7 @@ if __name__ == '__main__':
     data_loader = create_dataloader(opt)
     val_loader = create_dataloader(val_opt)
     model.set_consistency_total_steps(len(data_loader) * opt.niter)
+    model.set_steps_per_epoch(len(data_loader))
 
     # === Step 6: TensorBoard 日志 ===
     train_writer = SummaryWriter(os.path.join(opt.checkpoints_dir, opt.name, "train"))

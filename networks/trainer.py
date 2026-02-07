@@ -45,7 +45,8 @@ class Trainer(BaseModel):
                 "token_gate",
                 "alpha_param",
                 "projector",
-                "norm"
+                "norm",
+                "wavelet_theta"
             ]
 
         elif opt.arch.startswith("CLIP:"):
@@ -108,6 +109,8 @@ class Trainer(BaseModel):
         self.consistency_resize_scale = getattr(opt, "consistency_resize_scale", 0.0)
         self.consistency_total_steps = None
         self.teacher_model = None
+        self.wavelet_freeze_epochs = getattr(opt, "wavelet_freeze_epochs", 0)
+        self.steps_per_epoch = None
 
         if self.opt.arch.startswith("RFNT") and self.consistency_lambda > 0 and self.consistency_ema_decay > 0:
             self.teacher_model = copy.deepcopy(self._get_module())
@@ -145,6 +148,9 @@ class Trainer(BaseModel):
     def set_consistency_total_steps(self, total_steps):
         self.consistency_total_steps = max(int(total_steps), 0)
 
+    def set_steps_per_epoch(self, steps_per_epoch):
+        self.steps_per_epoch = max(int(steps_per_epoch), 1)
+
     def set_input(self, input):
         self.input = input[0].to(self.device)
         self.label = input[1].to(self.device).float()
@@ -172,6 +178,18 @@ class Trainer(BaseModel):
         with torch.no_grad():
             for ema_param, param in zip(self.teacher_model.parameters(), student.parameters()):
                 ema_param.data.mul_(decay).add_(param.data, alpha=1.0 - decay)
+
+    def _maybe_freeze_wavelet(self):
+        if self.wavelet_freeze_epochs <= 0 or self.steps_per_epoch is None:
+            return
+        module = self._get_module()
+        if not hasattr(module, "wavelet_theta"):
+            return
+        if hasattr(module, "learn_wavelet") and not module.learn_wavelet:
+            return
+        current_epoch = int(self.total_steps // self.steps_per_epoch)
+        requires_grad = current_epoch >= int(self.wavelet_freeze_epochs)
+        module.wavelet_theta.requires_grad_(requires_grad)
 
     def _gaussian_blur(self, x, sigma):
         if sigma <= 0:
@@ -258,13 +276,14 @@ class Trainer(BaseModel):
                 module = self._get_module()
                 if hasattr(module, "denoise_and_normalize") and hasattr(module, "forward_denoised"):
                     xw = module.denoise_and_normalize(self.input)
+                    pred_clean, _, _ = module.forward_denoised(xw, return_projected=True)
                     xw1 = self._consistency_augment(xw)
                     xw2 = self._consistency_augment(xw)
                     pred1, _, proj1 = module.forward_denoised(xw1, return_projected=True)
                     with torch.no_grad():
                         teacher = self.teacher_model if self.teacher_model is not None else module
                         _, _, proj2 = teacher.forward_denoised(xw2, return_projected=True)
-                    loss_bce = self.loss_fn(pred1.squeeze(1), self.label)
+                    loss_bce = self.loss_fn(pred_clean.squeeze(1), self.label)
                     z1 = F.normalize(proj1, dim=1)
                     z2 = F.normalize(proj2, dim=1)
                     cons_loss = 1.0 - (z1 * z2).sum(dim=1).mean()
@@ -284,6 +303,7 @@ class Trainer(BaseModel):
             loss_bce = self.loss_fn(self.output.squeeze(1), self.label)
             return loss_bce
     def optimize_parameters(self):
+        self._maybe_freeze_wavelet()
         if self.opt.arch.startswith("RFNT") and self.consistency_lambda > 0:
             self.loss = self.get_loss()
         else:

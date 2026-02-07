@@ -28,6 +28,8 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--consistency_blur_sigma_min', type=float, default=0.5, help='min gaussian sigma for blur aug')
         parser.add_argument('--consistency_blur_sigma_max', type=float, default=1.2, help='max gaussian sigma for blur aug')
         parser.add_argument('--consistency_resize_scale', type=float, default=0.1, help='resize scale range for consistency aug')
+        parser.add_argument('--wavelet_freeze_epochs', type=int, default=0, help='freeze learnable wavelet theta for first N epochs')
+        parser.add_argument('--learn_wavelet', action='store_true', help='enable learnable wavelet shrinkage; default off')
 
         self.isTrain = True
         return parser

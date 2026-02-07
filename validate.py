@@ -15,6 +15,7 @@ import csv
 import torch.utils.data
 import sys
 from dataset_paths import DATASET_PATHS
+from data.datasets import data_augment, custom_resize, rz_dict
 from models import get_model
 from configs.config_validate import ValConfig
 from PIL import Image
@@ -122,7 +123,8 @@ class RealFakeDataset(Dataset):
                  arch,
                  dataroot,
                  jpeg_quality=None,
-                 gaussian_sigma=None):
+                 gaussian_sigma=None,
+                 opt=None):
         
         assert data_mode in ["wang2020", "RFNT","Plot"]
         self.jpeg_quality = jpeg_quality
@@ -158,12 +160,15 @@ class RealFakeDataset(Dataset):
         for i in fake_list:
             self.labels_dict[i] = 1
 
-        stat_from = "imagenet" if arch.lower().startswith("imagenet") else "clip"
-        self.transform = transforms.Compose([
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=MEAN[stat_from], std=STD[stat_from])
-        ])
+        if opt is None:
+            stat_from = "imagenet" if arch.lower().startswith("imagenet") else "clip"
+            self.transform = transforms.Compose([
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=MEAN[stat_from], std=STD[stat_from])
+            ])
+        else:
+            self.transform = build_transform(opt, arch)
 
 
     def read_path(self, real_path, fake_path, data_mode, max_sample = None):
@@ -244,6 +249,50 @@ def validate(model, loader, opt, find_thres=False):
     best_thres = find_best_threshold(y_true, y_pred)
     r_acc1, f_acc1, acc1 = calculate_acc(y_true, y_pred, best_thres)
     return ap, r_acc0, f_acc0, acc0, r_acc1, f_acc1, acc1, best_thres
+
+
+def build_transform(opt, arch):
+    load_size = getattr(opt, "loadSize", 256)
+    crop_size = getattr(opt, "cropSize", 224)
+
+    if getattr(opt, "no_resize", False):
+        rz_func = transforms.Lambda(lambda img: img)
+    else:
+        rz_opt = opt
+        if not hasattr(opt, "loadSize") or not hasattr(opt, "rz_interp"):
+            class _Tmp:  # lightweight shim
+                pass
+            rz_opt = _Tmp()
+            rz_opt.loadSize = load_size
+            rz_opt.rz_interp = getattr(opt, "rz_interp", ['bilinear'])
+        rz_func = transforms.Lambda(lambda img: custom_resize(img, rz_opt))
+
+    if getattr(opt, "no_crop", False):
+        crop_func = transforms.Lambda(lambda img: img)
+    else:
+        crop_func = transforms.CenterCrop(crop_size)
+
+    if getattr(opt, "isTrain", False) and not getattr(opt, "no_flip", False):
+        flip_func = transforms.RandomHorizontalFlip()
+    else:
+        flip_func = transforms.Lambda(lambda img: img)
+
+    if getattr(opt, "isTrain", False) and getattr(opt, "data_aug", False):
+        aug_func = transforms.Lambda(lambda img: data_augment(img, opt))
+    else:
+        aug_func = transforms.Lambda(lambda img: img)
+
+    bk_name = arch[5:] if arch.startswith("RFNT") else arch
+    stat_from = bk_name.split(":")[0].lower()
+
+    return transforms.Compose([
+        rz_func,
+        aug_func,
+        crop_func,
+        flip_func,
+        transforms.ToTensor(),
+        transforms.Normalize(mean=MEAN[stat_from], std=STD[stat_from]),
+    ])
 
 
 
@@ -367,6 +416,7 @@ class Validator:
                     dataroot=self.opt.dataroot,
                     jpeg_quality=self.opt.jpeg_quality,
                     gaussian_sigma=self.opt.gaussian_sigma,
+                    opt=self.opt,
                 )
                 loader = torch.utils.data.DataLoader(
                     dataset,

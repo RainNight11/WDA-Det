@@ -59,20 +59,21 @@ EXPERIMENT_CONFIGS = {
         niter=6,
         gpu_ids="0",
         batch_size=32,
-        num_threads=24,
+        num_threads=8,
 
         data_mode="WildRF",
         data_name="WildRF",
         # TODO: 更新为你的数据路径
-        wang2020_data_path="/data_B/tianyu/dataset/WildRF/",
+        wang2020_data_path="/hy-tmp/WildRF/",
         last_epoch=-1,
 
         fix_backbone=True,
+        data_aug=False,
         jpg_prob=0.0,
         jpg_qual=[50, 100],
         blur_prob=0.0,
         blur_sig=[0.0, 3.0],
-        consistency_lambda=0.2,
+        consistency_lambda=0.1,
         consistency_warmup=0.1,
         consistency_ema_decay=0.99,
         consistency_noise_std=0.01,
@@ -80,6 +81,8 @@ EXPERIMENT_CONFIGS = {
         consistency_blur_sigma_min=0.5,
         consistency_blur_sigma_max=1.2,
         consistency_resize_scale=0.1,
+        wavelet_freeze_epochs=0,
+        learn_wavelet=False,
     ),
 "image-denoised-clip": dict(
         name="image-denoised-clip",  # 实验名（保存目录用）
