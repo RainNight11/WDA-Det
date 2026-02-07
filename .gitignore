@@ -1,1 +1,40 @@
+# ======================
+# Model checkpoints / logs
+# ======================
 checkpoints/
+logs/
+outputs/
+datasets/
+
+*.pth
+*.pt
+*.ckpt
+*.log
+
+# ======================
+# Python cache
+# ======================
+__pycache__/
+*.pyc
+*.pyo
+
+# ======================
+# Jupyter
+# ======================
+.ipynb_checkpoints/
+
+# ======================
+# Env / IDE
+# ======================
+.env
+.venv
+venv/
+.vscode/
+.idea/
+
+# ======================
+# OS
+# ======================
+.DS_Store
+Thumbs.db
+
