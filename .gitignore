@@ -38,6 +38,3 @@ venv/
 .DS_Store
 Thumbs.db
 
-# dinov2/3
-models/dinov2/
-
