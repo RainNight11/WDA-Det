@@ -17,7 +17,7 @@ VAL_EXPERIMENT_CONFIGS = {
         batch_size=64,
         gpu_ids="0",
         # 加载哪个 checkpoint 来测试
-        checkpoint_dir="checkpoints/WildRF/wda_consistency_v1",
+        checkpoint_dir="checkpoints/WildRF/wda_consistency_v1_WildRF",
         max_sample=None,
         jpeg_quality=None,
         gaussian_sigma=None,
@@ -35,7 +35,7 @@ VAL_EXPERIMENT_CONFIGS = {
         batch_size=64,
         gpu_ids="0",
         # 加载哪个 checkpoint 来测试
-        checkpoint_dir="checkpoints/WildRF/wda_consistency_v1",
+        checkpoint_dir="checkpoints/WildRF/wda_consistency_v1_fdmas",
         max_sample=None,
         jpeg_quality=None,
         gaussian_sigma=None,
