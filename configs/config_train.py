@@ -74,6 +74,7 @@ EXPERIMENT_CONFIGS = {
         blur_sig=[0.0, 3.0],
         consistency_lambda=0.2,
         consistency_warmup=0.1,
+        consistency_ema_decay=0.99,
         consistency_noise_std=0.01,
         consistency_blur_prob=0.5,
         consistency_blur_sigma_min=0.5,

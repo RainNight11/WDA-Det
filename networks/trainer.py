@@ -1,6 +1,7 @@
 import functools
 import os
 
+import copy
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -99,12 +100,20 @@ class Trainer(BaseModel):
         self.loss_fn = nn.BCEWithLogitsLoss()
         self.consistency_lambda = getattr(opt, "consistency_lambda", 0.0)
         self.consistency_warmup = getattr(opt, "consistency_warmup", 0.0)
+        self.consistency_ema_decay = getattr(opt, "consistency_ema_decay", 0.0)
         self.consistency_noise_std = getattr(opt, "consistency_noise_std", 0.0)
         self.consistency_blur_prob = getattr(opt, "consistency_blur_prob", 0.0)
         self.consistency_blur_sigma_min = getattr(opt, "consistency_blur_sigma_min", 0.0)
         self.consistency_blur_sigma_max = getattr(opt, "consistency_blur_sigma_max", 0.0)
         self.consistency_resize_scale = getattr(opt, "consistency_resize_scale", 0.0)
         self.consistency_total_steps = None
+        self.teacher_model = None
+
+        if self.opt.arch.startswith("RFNT") and self.consistency_lambda > 0 and self.consistency_ema_decay > 0:
+            self.teacher_model = copy.deepcopy(self._get_module())
+            self.teacher_model.to(self.device).eval()
+            for p in self.teacher_model.parameters():
+                p.requires_grad = False
 
 
     def load_networks(self):
@@ -154,6 +163,15 @@ class Trainer(BaseModel):
         warmup_steps = max(warmup_steps, 1)
         scale = min(1.0, float(self.total_steps) / warmup_steps)
         return self.consistency_lambda * scale
+
+    def _update_ema_teacher(self):
+        if self.teacher_model is None:
+            return
+        decay = float(self.consistency_ema_decay)
+        student = self._get_module()
+        with torch.no_grad():
+            for ema_param, param in zip(self.teacher_model.parameters(), student.parameters()):
+                ema_param.data.mul_(decay).add_(param.data, alpha=1.0 - decay)
 
     def _gaussian_blur(self, x, sigma):
         if sigma <= 0:
@@ -235,7 +253,6 @@ class Trainer(BaseModel):
         return loss_real
 
     def get_loss(self):
-        loss_bce = self.loss_fn(self.output.squeeze(1), self.label)
         if self.opt.arch.startswith("RFNT"):
             if self.consistency_lambda > 0:
                 module = self._get_module()
@@ -245,13 +262,15 @@ class Trainer(BaseModel):
                     xw2 = self._consistency_augment(xw)
                     pred1, _, proj1 = module.forward_denoised(xw1, return_projected=True)
                     with torch.no_grad():
-                        _, _, proj2 = module.forward_denoised(xw2, return_projected=True)
+                        teacher = self.teacher_model if self.teacher_model is not None else module
+                        _, _, proj2 = teacher.forward_denoised(xw2, return_projected=True)
                     loss_bce = self.loss_fn(pred1.squeeze(1), self.label)
                     z1 = F.normalize(proj1, dim=1)
                     z2 = F.normalize(proj2, dim=1)
                     cons_loss = 1.0 - (z1 * z2).sum(dim=1).mean()
                     weight = self._consistency_weight()
                     return loss_bce + weight * cons_loss
+            loss_bce = self.loss_fn(self.output.squeeze(1), self.label)
             if self.opt.loss == "loss_t":
                     loss_cov = self.get_covariance_loss(self.process_feature, self.label)
                     return loss_cov + loss_bce
@@ -262,6 +281,7 @@ class Trainer(BaseModel):
             elif self.opt.loss == "loss_bce":
                 return loss_bce
         else:
+            loss_bce = self.loss_fn(self.output.squeeze(1), self.label)
             return loss_bce
     def optimize_parameters(self):
         if self.opt.arch.startswith("RFNT") and self.consistency_lambda > 0:
@@ -272,3 +292,5 @@ class Trainer(BaseModel):
         self.optimizer.zero_grad()
         self.loss.backward()
         self.optimizer.step()
+        if self.teacher_model is not None:
+            self._update_ema_teacher()
