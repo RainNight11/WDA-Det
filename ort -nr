@@ -1,0 +1,10 @@
+.gitignore
+WDA_experiment_log.md
+configs/config_train.py
+configs/config_validate.py
+data/datasets.py
+models/wda_consistency_model.py
+networks/trainer.py
+options/train_options.py
+train.py
+validate.py
