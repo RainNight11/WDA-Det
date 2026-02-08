@@ -39,3 +39,4 @@ venv/
 Thumbs.db
 
 models/dinov2/
+models/dinov3/
