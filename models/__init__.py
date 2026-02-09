@@ -1,6 +1,7 @@
 from .clip_models import CLIPModel
 from .imagenet_models import ImagenetModel
 from .wda_consistency_model import WDAModel
+from .wda_decision_fusion_model import WDADecisionFusionModel
 from .moe_models import MoEDDModel
 
 
@@ -38,6 +39,14 @@ VALID_NAMES = [
     'RFNT-DINOv2:ViT-B14',
     'RFNT-DINOv2:ViT-S14',
 
+    # Decision-fusion variant (new)
+    'RFNTDF-CLIP:RN50',
+    'RFNTDF-CLIP:ViT-L/14',
+    'RFNTDF-DINOv2:ViT-G14',
+    'RFNTDF-DINOv2:ViT-L14',
+    'RFNTDF-DINOv2:ViT-B14',
+    'RFNTDF-DINOv2:ViT-S14',
+
     'MoEDD'  # 混合专家检测Diffusion生成图像
 ]
 
@@ -51,6 +60,8 @@ def get_model(name):
         return ImagenetModel(name[9:]) 
     elif name.startswith("CLIP:"):
         return CLIPModel(name[5:])
+    elif name.startswith("RFNTDF-"):
+        return WDADecisionFusionModel(name[len("RFNTDF-"):])
     elif name.startswith("RFNT"):
         return WDAModel(name[5:])
     elif name.startswith("MoEDD"):

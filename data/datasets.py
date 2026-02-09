@@ -30,6 +30,17 @@ STD = {
 
 }
 
+def parse_backbone_name(arch):
+    if arch.startswith("RFNTDF-"):
+        return arch[len("RFNTDF-"):]
+    if arch.startswith("RFNT-"):
+        return arch[len("RFNT-"):]
+    if arch.startswith("RFNT:"):
+        return arch[len("RFNT:"):]
+    if arch.startswith("RFNT"):
+        return arch[len("RFNT"):]
+    return arch
+
 
 
 
@@ -124,7 +135,7 @@ class RealFakeDataset(Dataset):
         else:
             rz_func = transforms.Lambda(lambda img: custom_resize(img, opt))
 
-        bk_name =  opt.arch[5:] if opt.arch.startswith("RFNT") else opt.arch
+        bk_name = parse_backbone_name(opt.arch)
         # stat_from = "imagenet" if opt.arch.lower().startswith("imagenet") else "clip"
         stat_from = bk_name.split(":")[0].lower()
         

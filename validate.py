@@ -44,6 +44,17 @@ STD = {
     "clip": [0.26862954, 0.26130258, 0.27577711]
 }
 
+def parse_backbone_name(arch):
+    if arch.startswith("RFNTDF-"):
+        return arch[len("RFNTDF-"):]
+    if arch.startswith("RFNT-"):
+        return arch[len("RFNT-"):]
+    if arch.startswith("RFNT:"):
+        return arch[len("RFNT:"):]
+    if arch.startswith("RFNT"):
+        return arch[len("RFNT"):]
+    return arch
+
 # some functions
 def find_best_threshold(y_true, y_pred):
     """
@@ -282,7 +293,7 @@ def build_transform(opt, arch):
     else:
         aug_func = transforms.Lambda(lambda img: img)
 
-    bk_name = arch[5:] if arch.startswith("RFNT") else arch
+    bk_name = parse_backbone_name(arch)
     stat_from = bk_name.split(":")[0].lower()
 
     return transforms.Compose([

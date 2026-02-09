@@ -4,6 +4,7 @@ from .base_options import BaseOptions
 class TestOptions(BaseOptions):
     def initialize(self, parser):
         parser = BaseOptions.initialize(self, parser)
+        parser.set_defaults(arch='RFNTDF-CLIP:ViT-L/14')
          #parser.add_argument('--premodel_path',default="./pretrained_weights/fc_weights.pth")  # our 直接将res50用作默认预训练模型
         parser.add_argument('--premodel_path', default="./pretrained_weights/model_epoch_best.pth")
         parser.add_argument('--no_resize', action='store_true')
@@ -14,6 +15,5 @@ class TestOptions(BaseOptions):
 
         self.isTrain = False
         return parser
-
 
 

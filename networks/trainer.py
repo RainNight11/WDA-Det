@@ -40,13 +40,21 @@ class Trainer(BaseModel):
             # 训练的层
             param_names = [
                 "ClassifyNet",
+                "main_head",
                 "noise_generator",
                 "pooling",
                 "token_gate",
                 "alpha_param",
                 "projector",
                 "norm",
-                "wavelet_theta"
+                "wavelet_theta",
+                "aux_stem",
+                "aux_proj",
+                "aux_res",
+                "evidence_head",
+                "aux_head",
+                "aux_gate",
+                "fusion_gamma",
             ]
 
         elif opt.arch.startswith("CLIP:"):
@@ -276,14 +284,18 @@ class Trainer(BaseModel):
                 module = self._get_module()
                 if hasattr(module, "denoise_and_normalize") and hasattr(module, "forward_denoised"):
                     xw = module.denoise_and_normalize(self.input)
-                    pred_clean, _, _ = module.forward_denoised(xw, return_projected=True)
                     xw1 = self._consistency_augment(xw)
                     xw2 = self._consistency_augment(xw)
-                    pred1, _, proj1 = module.forward_denoised(xw1, return_projected=True)
+                    _, _, proj1 = module.forward_denoised(xw1, return_projected=True)
                     with torch.no_grad():
                         teacher = self.teacher_model if self.teacher_model is not None else module
                         _, _, proj2 = teacher.forward_denoised(xw2, return_projected=True)
-                    loss_bce = self.loss_fn(pred_clean.squeeze(1), self.label)
+                    # Decision-fusion model should be supervised by its final fused logit.
+                    if self.opt.arch.startswith("RFNTDF"):
+                        loss_bce = self.loss_fn(self.output.squeeze(1), self.label)
+                    else:
+                        pred_clean, _, _ = module.forward_denoised(xw, return_projected=True)
+                        loss_bce = self.loss_fn(pred_clean.squeeze(1), self.label)
                     z1 = F.normalize(proj1, dim=1)
                     z2 = F.normalize(proj2, dim=1)
                     cons_loss = 1.0 - (z1 * z2).sum(dim=1).mean()
@@ -304,11 +316,10 @@ class Trainer(BaseModel):
             return loss_bce
     def optimize_parameters(self):
         self._maybe_freeze_wavelet()
-        if self.opt.arch.startswith("RFNT") and self.consistency_lambda > 0:
-            self.loss = self.get_loss()
-        else:
+        use_consistency = self.opt.arch.startswith("RFNT") and self.consistency_lambda > 0
+        if (not use_consistency) or self.opt.arch.startswith("RFNTDF"):
             self.forward()
-            self.loss = self.get_loss()
+        self.loss = self.get_loss()
         self.optimizer.zero_grad()
         self.loss.backward()
         self.optimizer.step()

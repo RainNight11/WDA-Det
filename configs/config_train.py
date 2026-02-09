@@ -4,7 +4,7 @@ from configs.base_config import BaseConfig
 from options.train_options import TrainOptions
 
 
-EXPERIMENT_NAME = "wda_consistency_v1_WildRF"   # 选择想要train的实验组
+EXPERIMENT_NAME = "wda_consistency_v1_WildRF"   # 选择想要train的实验组（新模型可切到 wda_decision_fusion_v1_WildRF）
 ########################################
 # ConfigTrain：默认参数 + 实验配置覆盖
 ########################################
@@ -87,6 +87,72 @@ EXPERIMENT_CONFIGS = {
 "wda_consistency_v1_fdmas": dict(
         name="wda_consistency_v1_fdmas",  # 实验名（保存目录用）
         arch="RFNT-CLIP:ViT-L/14",  # WDA consistency model
+        loss="loss_bce",
+        lr=0.001,
+        niter=10,
+        gpu_ids="0",
+        batch_size=32,
+        num_threads=8,
+
+        data_mode="wang2020",
+        data_name="Progan",
+        # TODO: 更新为你的数据路径
+        wang2020_data_path="/hy-tmp/WildRF/",
+        last_epoch=-1,
+
+        fix_backbone=True,
+        data_aug=True,
+        jpg_prob=0.5,
+        jpg_qual=[30, 100],
+        blur_prob=0.3,
+        blur_sig=[0.0, 2.0],
+        consistency_lambda=0.1,
+        consistency_warmup=0.1,
+        consistency_ema_decay=0.99,
+        consistency_noise_std=0.01,
+        consistency_blur_prob=0.5,
+        consistency_blur_sigma_min=0.5,
+        consistency_blur_sigma_max=1.2,
+        consistency_resize_scale=0.1,
+        wavelet_freeze_epochs=0,
+        learn_wavelet=False,
+    ),
+"wda_decision_fusion_v1_WildRF": dict(
+        name="wda_decision_fusion_v1_WildRF",  # 实验名（保存目录用）
+        arch="RFNTDF-CLIP:ViT-L/14",  # WDA decision-fusion model
+        loss="loss_bce",
+        lr=0.001,
+        niter=10,
+        gpu_ids="0",
+        batch_size=32,
+        num_threads=8,
+
+        data_mode="WildRF",
+        data_name="WildRF",
+        # TODO: 更新为你的数据路径
+        wang2020_data_path="/hy-tmp/WildRF/",
+        last_epoch=-1,
+
+        fix_backbone=True,
+        data_aug=True,
+        jpg_prob=0.5,
+        jpg_qual=[30, 100],
+        blur_prob=0.3,
+        blur_sig=[0.0, 2.0],
+        consistency_lambda=0.1,
+        consistency_warmup=0.1,
+        consistency_ema_decay=0.99,
+        consistency_noise_std=0.01,
+        consistency_blur_prob=0.5,
+        consistency_blur_sigma_min=0.5,
+        consistency_blur_sigma_max=1.2,
+        consistency_resize_scale=0.1,
+        wavelet_freeze_epochs=0,
+        learn_wavelet=False,
+    ),
+"wda_decision_fusion_v1_fdmas": dict(
+        name="wda_decision_fusion_v1_fdmas",  # 实验名（保存目录用）
+        arch="RFNTDF-CLIP:ViT-L/14",  # WDA decision-fusion model
         loss="loss_bce",
         lr=0.001,
         niter=10,

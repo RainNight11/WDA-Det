@@ -4,7 +4,7 @@ import os
 ########################################
 # 1. 选择当前要用的验证配置
 ########################################
-VAL_EXPERIMENT_NAME = "wda_consistency_v1_wildRF"   # 在这里切换：wildrf_vitl14 / fdmas_dinov2 等
+VAL_EXPERIMENT_NAME = "wda_consistency_v1_WildRF"   # 在这里切换：wildrf_vitl14 / fdmas_dinov2 等（新模型可切到 wda_decision_fusion_v1_WildRF）
 
 
 ########################################
@@ -36,6 +36,42 @@ VAL_EXPERIMENT_CONFIGS = {
         gpu_ids="0",
         # 加载哪个 checkpoint 来测试
         checkpoint_dir="checkpoints/WildRF/wda_consistency_v1_fdmas",
+        max_sample=None,
+        jpeg_quality=None,
+        gaussian_sigma=None,
+        disable_ssl_verify=False,
+
+        # 测试用的数据根目录
+        dataroot="/hy-tmp/WildRF/test/",
+        data_mode="RFNT_WildRF",
+        # 测试哪个 epoch：可以是 '2' 或 '7-10'
+        val_epoch="5",
+    ),
+    "wda_decision_fusion_v1_WildRF": dict(
+        arch="RFNTDF-CLIP:ViT-L/14",
+        result_folder="TestResults/WildRF",
+        batch_size=64,
+        gpu_ids="0",
+        # 加载哪个 checkpoint 来测试
+        checkpoint_dir="checkpoints/WildRF/wda_decision_fusion_v1_WildRF",
+        max_sample=None,
+        jpeg_quality=None,
+        gaussian_sigma=None,
+        disable_ssl_verify=False,
+
+        # 测试用的数据根目录
+        dataroot="/hy-tmp/WildRF/test/",
+        data_mode="RFNT_WildRF",
+        # 测试哪个 epoch：可以是 '2' 或 '7-10'
+        val_epoch="5",
+    ),
+    "wda_decision_fusion_v1_fdmas": dict(
+        arch="RFNTDF-CLIP:ViT-L/14",
+        result_folder="TestResults/fdmas",
+        batch_size=64,
+        gpu_ids="0",
+        # 加载哪个 checkpoint 来测试
+        checkpoint_dir="checkpoints/WildRF/wda_decision_fusion_v1_fdmas",
         max_sample=None,
         jpeg_quality=None,
         gaussian_sigma=None,

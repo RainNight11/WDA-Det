@@ -28,6 +28,23 @@ PIXEL_STD = {
 }
 
 
+class ResidualBlock(nn.Module):
+    def __init__(self, channels):
+        super(ResidualBlock, self).__init__()
+        self.conv1 = nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(channels)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(channels)
+
+    def forward(self, x):
+        identity = x
+        out = self.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out = self.relu(out + identity)
+        return out
+
+
 class WDADecisionFusionModel(nn.Module):
     """
     Main + auxiliary branch with decision-level fusion.
@@ -57,9 +74,10 @@ class WDADecisionFusionModel(nn.Module):
         wavelet_levels=3,
         wavelet_theta_init=0.02,
         learn_wavelet=False,
-        aux_channels=128,
+        gate_hidden_dim=256,
     ):
         super(WDADecisionFusionModel, self).__init__()
+        self.uses_decision_fusion = True
         self.bk_name = backbone_name
         self.wavelet_name = wavelet_name
         self.wavelet_levels = int(wavelet_levels)
@@ -102,28 +120,37 @@ class WDADecisionFusionModel(nn.Module):
             nn.Linear(min(256, feat_dim), min(256, feat_dim)),
         )
 
-        # Auxiliary branch on residual cue
-        self.aux_branch = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1, bias=False),
+        # Auxiliary evidence branch (r = x - xw)
+        # Conv3x3(3->32) + BN + ReLU
+        self.aux_stem = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
-            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1, bias=False),
+        )
+        # MaxPool3x3, stride=2
+        self.aux_pool0 = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        # Lift channels to 64 before residual blocks
+        self.aux_proj = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
-            nn.Conv2d(64, aux_channels, kernel_size=3, stride=2, padding=1, bias=False),
-            nn.BatchNorm2d(aux_channels),
-            nn.ReLU(inplace=True),
         )
+        # Residual Block x2
+        self.aux_res1 = ResidualBlock(64)
+        self.aux_res2 = ResidualBlock(64)
+        # Conv1x1(64->1) evidence logits
+        self.evidence_head = nn.Conv2d(64, 1, kernel_size=1, stride=1, padding=0, bias=True)
+        # Global auxiliary logit from feature_map
         self.aux_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.aux_head = nn.Linear(aux_channels, num_classes)
+        self.aux_head = nn.Linear(64, num_classes)
+        # Gate q = sigmoid(MLP([z_m, z_a]))
+        gate_hidden = max(int(gate_hidden_dim), 64)
         self.aux_gate = nn.Sequential(
-            nn.Linear(aux_channels + feat_dim, aux_channels),
+            nn.Linear(feat_dim + 64, gate_hidden),
             nn.GELU(),
-            nn.Linear(aux_channels, 1),
+            nn.Linear(gate_hidden, 1),
             nn.Sigmoid(),
         )
-
         # Fusion strength (starts at 0 => behaves as pure main branch initially)
         self.fusion_gamma = nn.Parameter(torch.tensor(0.0, dtype=torch.float32))
 
@@ -164,6 +191,16 @@ class WDADecisionFusionModel(nn.Module):
         if self.bk_name.startswith("DINOv2"):
             return self.pre_model(x)
         return self.pre_model.encode_image(x)
+
+    def forward_denoised(self, xw, return_projected=False):
+        # Compatibility method for trainer consistency branch
+        feat_main = self.backbone_extract(xw)
+        feat_main_norm = self.norm(feat_main)
+        pred_main = self.main_head(feat_main_norm)
+        if return_projected:
+            proj = self.projector(feat_main)
+            return pred_main, feat_main_norm, proj
+        return pred_main, feat_main_norm
 
     def _soft_threshold(self, x, theta):
         return torch.sign(x) * F.relu(torch.abs(x) - theta)
@@ -263,50 +300,75 @@ class WDADecisionFusionModel(nn.Module):
             ll = self._idwt2(ll, details_list[level], sizes[level])
         return ll
 
-    def denoise_and_normalize(self, x):
+    def denoise_and_normalize(self, x, return_raw=False):
         x_raw = self._denormalize(x)
         xw_raw = self.denoise(x_raw)
         xw = self._normalize(xw_raw)
-        return xw, x_raw, xw_raw
+        if return_raw:
+            return xw, x_raw, xw_raw
+        return xw
 
     def forward(self, x, return_feature=False, return_attention=False):
-        xw, x_raw, xw_raw = self.denoise_and_normalize(x)
-        residual = x_raw - xw_raw
+        xw, x_raw, xw_raw = self.denoise_and_normalize(x, return_raw=True)
 
         # Main branch
         feat_main = self.backbone_extract(xw)
         feat_main_norm = self.norm(feat_main)
         s_main = self.main_head(feat_main_norm)
 
-        # Auxiliary branch
-        aux_feat_map = self.aux_branch(residual)
-        aux_feat = self.aux_pool(aux_feat_map).flatten(1)
-        s_aux = self.aux_head(aux_feat)
+        residual = x_raw - xw_raw
 
-        # Confidence gate conditioned on both branches
-        gate_input = torch.cat([aux_feat, feat_main_norm], dim=1)
+        # Auxiliary evidence branch
+        feat_map = self.aux_stem(residual)
+        feat_map = self.aux_pool0(feat_map)
+        feat_map = self.aux_proj(feat_map)
+        feat_map = self.aux_res1(feat_map)
+        feat_map = self.aux_res2(feat_map)
+
+        # Evidence map A: sigmoid + upsample
+        evidence_logits = self.evidence_head(feat_map)  # [B,1,h,w]
+        evidence_map_low = torch.sigmoid(evidence_logits)
+        evidence_map = F.interpolate(
+            evidence_map_low,
+            size=x.shape[-2:],
+            mode="bilinear",
+            align_corners=False,
+        )
+
+        # Parallel global head: GlobalAvgPool(feature_map) -> FC -> s_a
+        aux_global = self.aux_pool(feat_map).flatten(1)  # [B,64]
+        s_aux = self.aux_head(aux_global)
+
+        # Local evidence feature z_a from A-aligned weighted pooling
+        weighted_sum = (feat_map * evidence_map_low).sum(dim=(2, 3))
+        weight_norm = evidence_map_low.sum(dim=(2, 3)).clamp_min(1e-6)
+        z_a = weighted_sum / weight_norm  # [B,64]
+
+        # Confidence gate q from [z_m, z_a]
+        gate_input = torch.cat([feat_main_norm, z_a], dim=1)
         q = self.aux_gate(gate_input)  # [B,1]
 
-        # Decision-level fusion (no residual reinjection to main input)
+        # Decision-level fusion (no residual reinjection to main input/features)
         s_final = s_main + self.fusion_gamma * q * torch.tanh(s_aux)
 
         if return_attention:
-            attention = aux_feat_map.mean(dim=1, keepdim=True)
-            attention = F.interpolate(attention, size=x.shape[-2:], mode="bilinear", align_corners=False)
             if return_feature:
                 return s_final, feat_main_norm, {
                     "main_logit": s_main,
                     "aux_logit": s_aux,
                     "gate": q,
-                    "attention": attention,
+                    "attention": evidence_map,
+                    "local_feature": z_a,
                 }
-            return s_final, attention
+            return s_final, evidence_map
 
         if return_feature:
             return s_final, feat_main_norm, {
                 "main_logit": s_main,
                 "aux_logit": s_aux,
                 "gate": q,
+                "attention": evidence_map,
+                "local_feature": z_a,
             }
 
         return s_final, feat_main_norm
