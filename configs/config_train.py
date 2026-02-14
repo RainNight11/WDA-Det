@@ -51,6 +51,7 @@ EXPERIMENT_USE_EVIDENCE_BRANCH = _parse_env_bool("ICME_USE_EVIDENCE_BRANCH")
 EXPERIMENT_SUPERVISED_LAMBDA = _parse_env_float("ICME_SUPERVISED_LAMBDA")
 EXPERIMENT_CONSISTENCY_LAMBDA = _parse_env_float("ICME_CONSISTENCY_LAMBDA")
 EXPERIMENT_NITER = _parse_env_int("ICME_NITER")
+EXPERIMENT_SAVE_LAST_ONLY = _parse_env_bool("ICME_SAVE_LAST_ONLY")
 ########################################
 # ConfigTrain：默认参数 + 实验配置覆盖
 ########################################
@@ -114,6 +115,8 @@ class ConfigTrain(BaseConfig):
             self.consistency_lambda = EXPERIMENT_CONSISTENCY_LAMBDA
         if EXPERIMENT_NITER is not None:
             self.niter = EXPERIMENT_NITER
+        if EXPERIMENT_SAVE_LAST_ONLY is not None:
+            self.save_last_only = EXPERIMENT_SAVE_LAST_ONLY
 
         # Step 3: 一些自动补全逻辑（可选）
         if not getattr(self, "checkpoints_dir", ""):

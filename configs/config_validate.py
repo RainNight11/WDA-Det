@@ -25,6 +25,13 @@ def _parse_env_float(key):
         return None
     return float(raw)
 
+
+def _parse_env_int(key):
+    raw = os.getenv(key, "").strip()
+    if raw == "":
+        return None
+    return int(raw)
+
 ########################################
 # 1. 选择当前要用的验证配置
 ########################################
@@ -45,6 +52,8 @@ VAL_AUX_ACTIVATION = os.getenv("ICME_AUX_ACTIVATION", "").strip()
 VAL_USE_EVIDENCE_BRANCH = _parse_env_bool("ICME_USE_EVIDENCE_BRANCH")
 VAL_SUPERVISED_LAMBDA = _parse_env_float("ICME_SUPERVISED_LAMBDA")
 VAL_CONSISTENCY_LAMBDA = _parse_env_float("ICME_CONSISTENCY_LAMBDA")
+VAL_JPEG_QUALITY = _parse_env_int("ICME_VAL_JPEG_QUALITY")
+VAL_GAUSSIAN_SIGMA = _parse_env_float("ICME_VAL_GAUSSIAN_SIGMA")
 
 
 ########################################
@@ -476,6 +485,10 @@ class ValConfig:
             self.supervised_lambda = VAL_SUPERVISED_LAMBDA
         if VAL_CONSISTENCY_LAMBDA is not None:
             self.consistency_lambda = VAL_CONSISTENCY_LAMBDA
+        if VAL_JPEG_QUALITY is not None:
+            self.jpeg_quality = VAL_JPEG_QUALITY
+        if VAL_GAUSSIAN_SIGMA is not None:
+            self.gaussian_sigma = VAL_GAUSSIAN_SIGMA
 
         self.result_folder = os.path.join(self.result_folder, VAL_EXPERIMENT_NAME)
         if VAL_RESULT_SUFFIX:

@@ -14,6 +14,7 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--lastload_path',type=str,default='',help='path to last checkpoint')
         parser.add_argument('--loss_freq', type=int, default=400, help='frequency of showing loss on tensorboard')
         parser.add_argument('--save_epoch_freq', type=int, default=1, help='frequency of saving checkpoints at the end of epochs')
+        parser.add_argument('--save_last_only', action='store_true', help='save checkpoint only at the last epoch (or final epoch before early stop)')
         parser.add_argument('--epoch_count', type=int, default=1, help='the starting epoch count, we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>, ...')
         parser.add_argument('--train_split', type=str, default='train', help='train, val, test, etc')
         parser.add_argument('--val_split', type=str, default='val', help='train, val, test, etc')

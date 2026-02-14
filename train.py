@@ -143,6 +143,7 @@ if __name__ == '__main__':
         epoch_start_time = time.time()
         train_logger.info("-" * 80)
         train_logger.info("Epoch %d/%d 开始", epoch + 1, opt.niter)
+        saved_this_epoch = False
 
         with tqdm(total=len(data_loader), desc=f"Epoch {epoch + 1}/{opt.niter}", unit="batch") as pbar:
             for i, data in enumerate(data_loader):
@@ -160,10 +161,12 @@ if __name__ == '__main__':
 
                 pbar.update(1)
 
-        if epoch % opt.save_epoch_freq == 0:
+        save_last_only = bool(getattr(opt, "save_last_only", False))
+        should_save = (epoch == opt.niter - 1) if save_last_only else (epoch % opt.save_epoch_freq == 0)
+        if should_save:
             train_logger.info('saving the model at the end of epoch %d', epoch)
-            # model.save_networks('model_epoch_best.pth')
             model.save_networks('model_epoch_%s.pth' % epoch)
+            saved_this_epoch = True
 
         # === Step 8: 验证 ===
         model.eval()
@@ -179,6 +182,9 @@ if __name__ == '__main__':
                 train_logger.info("Learning rate dropped by 10, continue training...")
                 early_stopping = EarlyStopping(patience=opt.earlystop_epoch, delta=-0.002, verbose=True)
             else:
+                if save_last_only and (not saved_this_epoch):
+                    train_logger.info('saving the model before early stop at epoch %d', epoch)
+                    model.save_networks('model_epoch_%s.pth' % epoch)
                 train_logger.info("Early stopping.")
                 break
 
