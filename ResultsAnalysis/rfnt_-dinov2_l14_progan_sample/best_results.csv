@@ -1,4 +1,0 @@
-metric,best_dataset(s),best_dataset_mean,best_epoch(s),best_epoch_MEAN
-AP,progan,92.598,epoch49,72.06
-Acc(0.5),progan,81.91,epoch48,61.65
-Acc(best),progan,84.011429,epoch49,67.22

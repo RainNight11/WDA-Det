@@ -8,6 +8,11 @@ import torch.nn.functional as F
 from networks.base_model import BaseModel, init_weights
 import sys
 from models import get_model
+from models.wavelet_utils import (
+    DEFAULT_WAVELET,
+    DEFAULT_WAVELET_LEVELS,
+    DEFAULT_WAVELET_THETA_INIT,
+)
 
 
 class Trainer(BaseModel):
@@ -17,7 +22,24 @@ class Trainer(BaseModel):
     def __init__(self, opt):
         super(Trainer, self).__init__(opt)
         self.opt = opt
-        self.model = get_model(opt.arch)
+        model_kwargs = {}
+        if opt.arch.startswith("RFNT"):
+            model_kwargs = {
+                "wavelet_name": getattr(opt, "wavelet_name", DEFAULT_WAVELET),
+                "wavelet_levels": getattr(opt, "wavelet_levels", DEFAULT_WAVELET_LEVELS),
+                "wavelet_theta_init": getattr(opt, "wavelet_theta_init", DEFAULT_WAVELET_THETA_INIT),
+                "learn_wavelet": getattr(opt, "learn_wavelet", False),
+            }
+            if opt.arch.startswith("RFNTDF"):
+                model_kwargs.update({
+                    "denoise_mode": getattr(opt, "denoise_mode", "wavelet"),
+                    "use_evidence_branch": getattr(opt, "use_evidence_branch", True),
+                    "use_residual": getattr(opt, "use_residual", True),
+                    "evidence_pool_mode": getattr(opt, "evidence_pool_mode", "aligned"),
+                    "gate_mode": getattr(opt, "gate_mode", "learned"),
+                    "aux_activation": getattr(opt, "aux_activation", "tanh"),
+                })
+        self.model = get_model(opt.arch, **model_kwargs)
         # torch.nn.init.normal_(self.model.fc.weight.data, 0.0, opt.init_gain)
         """增加多卡训练"""
         # 检查 GPU 数量并选择使用单卡或多卡模式
@@ -107,6 +129,7 @@ class Trainer(BaseModel):
             self.load_networks()  # 加载模型和优化器的状态
 
         self.loss_fn = nn.BCEWithLogitsLoss()
+        self.supervised_lambda = float(getattr(opt, "supervised_lambda", 1.0))
         self.consistency_lambda = getattr(opt, "consistency_lambda", 0.0)
         self.consistency_warmup = getattr(opt, "consistency_warmup", 0.0)
         self.consistency_ema_decay = getattr(opt, "consistency_ema_decay", 0.0)
@@ -300,7 +323,10 @@ class Trainer(BaseModel):
                     z2 = F.normalize(proj2, dim=1)
                     cons_loss = 1.0 - (z1 * z2).sum(dim=1).mean()
                     weight = self._consistency_weight()
-                    return loss_bce + weight * cons_loss
+                    total = weight * cons_loss
+                    if self.supervised_lambda > 0:
+                        total = total + self.supervised_lambda * loss_bce
+                    return total
             loss_bce = self.loss_fn(self.output.squeeze(1), self.label)
             if self.opt.loss == "loss_t":
                     loss_cov = self.get_covariance_loss(self.process_feature, self.label)
@@ -310,7 +336,9 @@ class Trainer(BaseModel):
                 lambda_real = 0.1
                 return loss_real + lambda_real*loss_bce
             elif self.opt.loss == "loss_bce":
-                return loss_bce
+                if self.supervised_lambda <= 0:
+                    return loss_bce * 0.0
+                return self.supervised_lambda * loss_bce
         else:
             loss_bce = self.loss_fn(self.output.squeeze(1), self.label)
             return loss_bce

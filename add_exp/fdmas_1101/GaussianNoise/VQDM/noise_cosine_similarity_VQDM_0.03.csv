@@ -1,3 +1,0 @@
-dataset,parameter,value,image_type,count,mean_similarity,std_similarity
-VQDM,Noise STD,0.03,Real,6000,0.9533819557825725,0.02303209376087859
-VQDM,Noise STD,0.03,Fake,6000,0.9501335191130638,0.027911341499100163

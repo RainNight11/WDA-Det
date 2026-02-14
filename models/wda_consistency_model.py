@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import pywt
+from .wavelet_utils import validate_wavelet_name
 
 
 CHANNELS = {
@@ -39,7 +40,7 @@ class WDAModel(nn.Module):
                  learn_wavelet=False):
         super(WDAModel, self).__init__()
         self.bk_name = backbone_name
-        self.wavelet_name = wavelet_name
+        self.wavelet_name = validate_wavelet_name(wavelet_name)
         self.wavelet_levels = int(wavelet_levels)
         self.learn_wavelet = bool(learn_wavelet)
 

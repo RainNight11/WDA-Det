@@ -12,6 +12,11 @@ from sklearn.metrics import average_precision_score, precision_recall_curve, acc
 from torch.utils.data import Dataset
 import sys
 from models import get_model
+from models.wavelet_utils import (
+    DEFAULT_WAVELET,
+    DEFAULT_WAVELET_LEVELS,
+    DEFAULT_WAVELET_THETA_INIT,
+)
 from PIL import Image
 import pickle
 from tqdm import tqdm
@@ -215,7 +220,15 @@ if __name__ == '__main__':
         shutil.rmtree(opt.predict_path)
     os.makedirs(opt.predict_path)
     model_path = "./src/pretrained_weights/model_epoch_best.pth"
-    model = get_model(opt.arch)  # get model network
+    model_kwargs = {}
+    if opt.arch.startswith("RFNT"):
+        model_kwargs = {
+            "wavelet_name": getattr(opt, "wavelet_name", DEFAULT_WAVELET),
+            "wavelet_levels": getattr(opt, "wavelet_levels", DEFAULT_WAVELET_LEVELS),
+            "wavelet_theta_init": getattr(opt, "wavelet_theta_init", DEFAULT_WAVELET_THETA_INIT),
+            "learn_wavelet": getattr(opt, "learn_wavelet", False),
+        }
+    model = get_model(opt.arch, **model_kwargs)  # get model network
     # pretrained_weights/fc_weights.pth
     state_dict = torch.load(model_path, map_location='cpu')  # pretrained model weights
     model.load_state_dict(state_dict['model'])

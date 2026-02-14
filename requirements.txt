@@ -1,0 +1,21 @@
+
+# Numeric / scientific
+numpy
+scipy
+pandas
+scikit-learn
+scikit-image
+
+# Image / augmentation / IO
+Pillow
+opencv-python
+PyWavelets
+
+# Utilities
+tqdm
+tensorboard
+matplotlib
+ftfy
+regex
+setuptools
+ipython

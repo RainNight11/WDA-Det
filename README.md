@@ -1,189 +1,165 @@
-# WDA-Det (PyTorch)
+# WDA-Det: Wavelet Denoising with Decision-Level Fusion for Real/Fake Image Detection
 
-WDA-Det is a PyTorch project for **real vs. fake image detection**.
+Official PyTorch implementation of our paper-style real-vs-fake image detector.
 
-The primary model in this repo is **WDA-Det (Decision Fusion)** implemented in `models/wda_decision_fusion_model.py`:
-- Main branch: wavelet denoise → backbone → main head
-- Evidence branch: residual (raw − denoised) → CNN → evidence map + auxiliary logit
-- Decision-level fusion: gated auxiliary contribution added to the main logit
+WDA-Det combines:
+- a denoised semantic branch (`x -> denoise -> backbone -> main logit`),
+- a residual evidence branch (`x_raw - x_denoised -> CNN -> evidence + aux logit`),
+- and a gated decision-level fusion (`main + gamma * gate * tanh(aux)`).
 
-An older/alternative baseline (kept for comparison) is the **consistency single-path** model in `models/wda_consistency_model.py`.
+The main model lives in `models/wda_decision_fusion_model.py`.
 
-Entry points:
-- Training: `train.py`
-- Offline evaluation: `validate.py`
-- Ad-hoc inference scripts: `test.py`, `main.py`
+## Highlights
+- Dual-view decision design: semantic decision from denoised input + forensic evidence from residuals.
+- Gated fusion for robust cross-domain behavior.
+- Support for CLIP and DINOv2 backbones.
+- Unified training/evaluation pipeline with CSV-based reporting.
 
-Paper-oriented notes for the decision-fusion model:
-- `WDA_DECISION_FUSION_PAPER_NOTES.md`
+## Repository Structure
+- `train.py`: training entry point.
+- `validate.py`: offline multi-dataset evaluation.
+- `test.py`, `main.py`: ad-hoc inference scripts.
+- `models/`: model definitions (`wda_decision_fusion_model.py`, `wda_consistency_model.py`).
+- `networks/trainer.py`: optimization and loss logic.
+- `data/datasets.py`: dataset loading and augmentations.
+- `configs/config_train.py`: train experiment presets.
+- `configs/config_validate.py`: validation presets.
+- `dataset_paths.py`: per-benchmark sub-dataset lists.
+- `checkpoints/`, `TestResults/`, `ResultsAnalysis/`: outputs and analysis artifacts.
 
----
+## Method Overview
+Primary variant: `RFNTDF-*` (decision fusion)
 
-## Project Layout
+1) Denoising branch
+- Convert normalized tensor back to pixel space.
+- Apply wavelet denoising (`pywt` by default).
+- Re-normalize and feed backbone for `s_main`.
 
-- `train.py`, `validate.py`, `test.py`, `main.py`: runnable scripts
-- `configs/`: experiment presets (`config_train.py`, `config_validate.py`)
-- `options/`: CLI options
-- `models/`: model implementations
-- `networks/`: training wrapper (`networks/trainer.py`)
-- `data/`: training dataset loader and augmentations (`data/datasets.py`)
-- `checkpoints/`: saved checkpoints and logs
-- `TestResults/`, `ResultsAnalysis/`: evaluation outputs and analysis artifacts
+2) Evidence branch
+- Build residual evidence `r = x_raw - xw_raw`.
+- Use lightweight CNN to predict evidence map and auxiliary logit `s_aux`.
+- Pool local evidence feature for gating.
 
----
+3) Decision fusion
+- Gate `q in [0,1]` is predicted from `[z_main, z_local]`.
+- Final logit: `s_final = s_main + gamma * q * tanh(s_aux)`.
 
-## Requirements
+Detailed notes: `WDA_DECISION_FUSION_PAPER_NOTES.md`.
 
-Install dependencies as described in `README/readme_package_install.txt` (CUDA-specific Torch versions may be listed there).
+## Environment
+Install dependencies according to `README/readme_package_install.txt`.
 
-Common dependencies used in this repo include:
+Typical packages:
 - `torch`, `torchvision`
-- `pywt` (PyWavelets)
+- `pywavelets`
 - `scikit-learn`
 - `opencv-python`
-- `tensorboard` (or TensorBoard-compatible SummaryWriter)
+- `tensorboard`
 
-Notes:
-- The default wavelet denoiser uses `pywt` and runs via NumPy/CPU in the provided implementation.
-- Decision-fusion model selection uses the `RFNTDF-*` prefix (see `models/__init__.py`).
+## Dataset Conventions
+Training loader: `data/RealFakeDataset` in `data/datasets.py`.
 
----
+Expected naming convention relies on path keywords:
+- real images contain `0_real`
+- fake images contain `1_fake`
 
-## Datasets and Folder Conventions
+### WildRF (`data_mode="WildRF"`)
+`wang2020_data_path` should contain:
+- `train/` (`...0_real...`, `...1_fake...`)
+- `val/` (`...0_real...`, `...1_fake...`)
 
-### Training (`data/datasets.py`)
+### ProGAN-style (`data_mode="wang2020"`)
+`wang2020_data_path` should contain:
+- `train/progan/`
+- `test/progan/`
 
-Training uses `data/RealFakeDataset` and relies on `opt.data_mode` and `opt.wang2020_data_path`.
-
-Typical conventions:
-
-1) **WildRF** (`opt.data_mode="WildRF"`)
-
-`opt.wang2020_data_path` should contain:
-- `train/` with images whose paths include `0_real` and `1_fake`
-- `val/` with images whose paths include `0_real` and `1_fake`
-
-2) **wang2020 / ProGAN-style** (`opt.data_mode="wang2020"`)
-
-`opt.wang2020_data_path` should contain:
-- `train/progan/` with `0_real` and `1_fake`
-- `test/progan/` with `0_real` and `1_fake`
-
-The code filters files by checking whether `0_real` / `1_fake` occurs in the file path.
-
-### Offline evaluation (`validate.py`)
-
-`validate.py` evaluates multiple sub-datasets for `fdmas` and `WildRF` using the lists in `dataset_paths.py`:
+### Offline validation benchmarks
+`validate.py` reads sub-dataset names from `dataset_paths.py`:
 - `fdmas`: `ADM`, `biggan`, `cyclegan`, `DALLE2`, ...
 - `WildRF`: `facebook`, `reddit`, `twitter`
 
-For `WildRF`, your validation `dataroot` is typically:
+## Quick Start
 
-`/path/to/WildRF/test/`
+### 1) Select a training preset
+Edit `configs/config_train.py`:
 
-with subfolders:
-- `/path/to/WildRF/test/facebook/...0_real...` and `...1_fake...`
-- `/path/to/WildRF/test/reddit/...0_real...` and `...1_fake...`
-- `/path/to/WildRF/test/twitter/...0_real...` and `...1_fake...`
+```python
+EXPERIMENT_NAME = "wda_decision_fusion_v1_WildRF"
+```
 
----
-
-## Training
-
-Training is driven by `configs/config_train.py`.
-
-1) Select an experiment preset by editing:
-
-`configs/config_train.py` → `EXPERIMENT_NAME = "..."`
-
-Relevant presets in this repo include:
-- `wda_decision_fusion_v1_WildRF` (decision-fusion, recommended)
-- `wda_decision_fusion_v1_fdmas` (decision-fusion, recommended)
+Available paper-relevant presets include:
+- `wda_decision_fusion_v1_WildRF` (recommended)
+- `wda_decision_fusion_v1_fdmas` (recommended)
 - `wda_consistency_v1_WildRF` (baseline)
 - `wda_consistency_v1_fdmas` (baseline)
 
-2) Run:
-
+### 2) Train
 ```bash
 python train.py
 ```
 
 Outputs:
-- Checkpoints: `checkpoints/<data_name>/<experiment_name>/model_epoch_*.pth`
-- Log: `checkpoints/<data_name>/<experiment_name>/training.log`
+- checkpoint: `checkpoints/<data_name>/<exp_name>/model_epoch_*.pth`
+- log: `checkpoints/<data_name>/<exp_name>/training.log`
 
 TensorBoard:
 ```bash
 tensorboard --logdir checkpoints --port 6006
 ```
 
----
+### 3) Validate
+Edit `configs/config_validate.py`:
 
-## Validation / Testing (Offline, Multi-Dataset)
+```python
+VAL_EXPERIMENT_NAME = "wda_decision_fusion_v1_WildRF"
+```
 
-Validation is driven by `configs/config_validate.py`.
-
-1) Select a validation preset by editing:
-
-`configs/config_validate.py` → `VAL_EXPERIMENT_NAME = "..."`
-
-2) Run:
-
+Run:
 ```bash
 python validate.py
 ```
 
-Outputs are written under:
-- `TestResults/<...>/<VAL_EXPERIMENT_NAME>/epoch<k>/epoch_<k>_results.csv`
-- plus a `validate.log` in the same folder.
+Outputs:
+- `TestResults/.../<VAL_EXPERIMENT_NAME>/epoch*/epoch_*_results.csv`
+- `validate.log`
 
-Metrics:
+## Evaluation Metrics
+`validate.py` reports:
 - `AP`
 - `Acc(0.5)`
-- `Acc(best)` and `best_thres` (helps diagnose threshold drift across domains)
+- `Acc(best)`
+- `best_thres`
 
----
+For cross-domain reporting, we recommend presenting all of the above, especially `Acc(best)` and `best_thres` to quantify threshold shift.
 
-## Inference Scripts (`test.py`, `main.py`)
-
-This repo also includes standalone inference-style scripts intended for “folder of images → CSV predictions” workflows:
-- `test.py`
-- `main.py`
-
-These scripts use `options/test_options.py` and load a checkpoint from `--premodel_path`.
-
-Important:
-- `options/test_options.py` defaults `--arch` to `RFNTDF-CLIP:ViT-L/14` (decision fusion).
-- The decision-fusion model forward returns a tuple by default: `(logit, feature)`. If a script assumes a single tensor, adjust it to unpack the tuple.
-
----
-
-## Selecting the Model Variant
-
-Model selection is string-based via `opt.arch`:
-- Decision fusion model (primary): `RFNTDF-CLIP:ViT-L/14`, `RFNTDF-DINOv2:ViT-L14`, ...
+## Model Selection (`opt.arch`)
+- Decision fusion (primary): `RFNTDF-CLIP:ViT-L/14`, `RFNTDF-DINOv2:ViT-L14`, ...
 - Consistency baseline: `RFNT-CLIP:ViT-L/14`, `RFNT-DINOv2:ViT-L14`, ...
 
-Implementation entry:
-- `models/get_model()` in `models/__init__.py`
+Routing entry: `models/__init__.py`.
 
----
+## Reproducibility Checklist
+When reporting paper results, record:
+- backbone family and variant,
+- wavelet settings (`db4`, levels, learnable or fixed),
+- normalization statistics source (CLIP vs DINOv2),
+- consistency settings (`consistency_*`),
+- evaluation protocol and threshold policy.
 
-## Reproducibility Notes
+## Citation
+If you use this code, please cite our paper.
 
-If you are writing a paper, report:
-- Backbone name (CLIP vs DINOv2; exact variant)
-- Wavelet settings (`db4`, levels=3; whether `learn_wavelet` is enabled)
-- Data normalization stats source (CLIP vs DINOv2)
-- Whether consistency regularization is enabled (`consistency_*` options)
-- Multi-dataset evaluation protocol and threshold selection (`Acc@0.5` vs `Acc@best`)
+```bibtex
+@article{wdadet2026,
+  title   = {WDA-Det: Wavelet Denoising with Decision-Level Fusion for Real/Fake Image Detection},
+  author  = {Anonymous},
+  journal = {Under Review},
+  year    = {2026}
+}
+```
 
----
+You can replace this entry with the final publication metadata later.
 
-## Quick Pointers
-
-- Decision-fusion model code (primary): `models/wda_decision_fusion_model.py`
-- Consistency baseline code: `models/wda_consistency_model.py`
-- Training wrapper / losses: `networks/trainer.py`
-- Training dataset loader: `data/datasets.py`
-- Offline evaluation runner: `validate.py`
+## Acknowledgment
+- CLIP backbone and tooling from OpenAI CLIP ecosystem.
+- DINOv2 backbone support for strong visual representations.

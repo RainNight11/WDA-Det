@@ -1,3 +1,0 @@
-dataset,parameter,value,image_type,count,mean_similarity,std_similarity
-DALLE2,Noise STD,0.1,Real,999,0.8860394909933165,0.03888459939188368
-DALLE2,Noise STD,0.1,Fake,1000,0.8596531014442443,0.045609299432808344

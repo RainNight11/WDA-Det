@@ -17,6 +17,11 @@ import sys
 from dataset_paths import DATASET_PATHS
 from data.datasets import data_augment, custom_resize, rz_dict
 from models import get_model
+from models.wavelet_utils import (
+    DEFAULT_WAVELET,
+    DEFAULT_WAVELET_LEVELS,
+    DEFAULT_WAVELET_THETA_INIT,
+)
 from configs.config_validate import ValConfig
 from PIL import Image
 from scipy.ndimage import gaussian_filter
@@ -24,6 +29,7 @@ from tqdm import tqdm
 import logging
 from datetime import datetime
 import time
+import re
 
 
 
@@ -366,20 +372,34 @@ class Validator:
         self.logger.debug(f"checkpoint_dir = {self.opt.checkpoint_dir}")
         self.logger.debug(f"files in dir: {os.listdir(self.opt.checkpoint_dir)}")
 
-        all_ckpts = sorted([
+        all_ckpts = [
             f for f in os.listdir(self.opt.checkpoint_dir)
             if f.startswith("model_epoch_") and f.endswith(".pth")
-        ])
+        ]
+        numbered_ckpts = []
+        for fname in all_ckpts:
+            match = re.match(r"^model_epoch_(\d+)\.pth$", fname)
+            if match:
+                numbered_ckpts.append((int(match.group(1)), fname))
+        numbered_ckpts.sort(key=lambda x: x[0])
+        numbered_lookup = {epoch: fname for epoch, fname in numbered_ckpts}
 
-        if "-" in self.opt.val_epoch:
-            start, end = map(int, self.opt.val_epoch.split("-"))
+        val_epoch = str(self.opt.val_epoch).strip().lower()
+
+        if val_epoch == "last":
+            ckpts = [numbered_ckpts[-1][1]] if numbered_ckpts else []
+        elif val_epoch == "best":
+            best_file = "model_epoch_best.pth"
+            ckpts = [best_file] if best_file in all_ckpts else []
+        elif "-" in val_epoch:
+            start, end = map(int, val_epoch.split("-"))
             ckpts = [
-                f"model_epoch_{i}.pth" for i in range(start, end + 1)
-                if f"model_epoch_{i}.pth" in all_ckpts
+                numbered_lookup[i] for i in range(start, end + 1)
+                if i in numbered_lookup
             ]
         else:
-            epoch_file = f"model_epoch_{int(self.opt.val_epoch)}.pth"
-            ckpts = [epoch_file] if epoch_file in all_ckpts else []
+            epoch_value = int(val_epoch)
+            ckpts = [numbered_lookup[epoch_value]] if epoch_value in numbered_lookup else []
 
         if not ckpts:
             self.logger.error(
@@ -400,7 +420,24 @@ class Validator:
         )
         epoch_start = time.time()
 
-        model = get_model(self.opt.arch)
+        model_kwargs = {}
+        if self.opt.arch.startswith("RFNT"):
+            model_kwargs = {
+                "wavelet_name": getattr(self.opt, "wavelet_name", DEFAULT_WAVELET),
+                "wavelet_levels": getattr(self.opt, "wavelet_levels", DEFAULT_WAVELET_LEVELS),
+                "wavelet_theta_init": getattr(self.opt, "wavelet_theta_init", DEFAULT_WAVELET_THETA_INIT),
+                "learn_wavelet": getattr(self.opt, "learn_wavelet", False),
+            }
+            if self.opt.arch.startswith("RFNTDF"):
+                model_kwargs.update({
+                    "denoise_mode": getattr(self.opt, "denoise_mode", "wavelet"),
+                    "use_evidence_branch": getattr(self.opt, "use_evidence_branch", True),
+                    "use_residual": getattr(self.opt, "use_residual", True),
+                    "evidence_pool_mode": getattr(self.opt, "evidence_pool_mode", "aligned"),
+                    "gate_mode": getattr(self.opt, "gate_mode", "learned"),
+                    "aux_activation": getattr(self.opt, "aux_activation", "tanh"),
+                })
+        model = get_model(self.opt.arch, **model_kwargs)
         state_dict = torch.load(ckpt_path, map_location="cpu")
         model.load_state_dict(state_dict["model"])
         model.to(self.device).eval()

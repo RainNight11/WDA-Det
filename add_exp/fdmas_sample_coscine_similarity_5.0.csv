@@ -1,3 +1,0 @@
-parameter,value,image_type,count,mean_similarity,std_similarity
-Blur Sigma,5.0,Real,5499,0.6607561723755412,0.07708391436813808
-Blur Sigma,5.0,Fake,5499,0.7338854860372815,0.06840975036972774

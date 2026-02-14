@@ -1,3 +1,0 @@
-parameter,value,image_type,count,mean_similarity,std_similarity
-JPEG Quality,75,Real,3620,0.9525016401518774,0.02025227274341471
-JPEG Quality,75,Fake,3620,0.9335836176220225,0.021411933854699212

@@ -1,3 +1,0 @@
-dataset,parameter,value,image_type,count,mean_similarity,std_similarity
-whichfaceisreal,Noise STD,0.03,Real,1000,0.9493348608016968,0.020655204325625072
-whichfaceisreal,Noise STD,0.03,Fake,1000,0.9507941059470176,0.017836777133518382

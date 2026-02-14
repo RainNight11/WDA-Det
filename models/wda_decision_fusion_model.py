@@ -4,6 +4,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import pywt
+from .wavelet_utils import validate_wavelet_name
+
+VALID_DENOISE_MODES = {"wavelet", "identity"}
+VALID_EVIDENCE_POOL_MODES = {"aligned", "gap"}
+VALID_GATE_MODES = {"learned", "ones"}
+VALID_AUX_ACTIVATIONS = {"tanh", "identity"}
 
 
 CHANNELS = {
@@ -75,13 +81,46 @@ class WDADecisionFusionModel(nn.Module):
         wavelet_theta_init=0.02,
         learn_wavelet=False,
         gate_hidden_dim=256,
+        denoise_mode="wavelet",
+        use_evidence_branch=True,
+        use_residual=True,
+        evidence_pool_mode="aligned",
+        gate_mode="learned",
+        aux_activation="tanh",
     ):
         super(WDADecisionFusionModel, self).__init__()
         self.uses_decision_fusion = True
         self.bk_name = backbone_name
-        self.wavelet_name = wavelet_name
+        self.wavelet_name = validate_wavelet_name(wavelet_name)
         self.wavelet_levels = int(wavelet_levels)
         self.learn_wavelet = bool(learn_wavelet)
+        self.denoise_mode = str(denoise_mode).lower()
+        self.use_evidence_branch = bool(use_evidence_branch)
+        self.use_residual = bool(use_residual)
+        self.evidence_pool_mode = str(evidence_pool_mode).lower()
+        self.gate_mode = str(gate_mode).lower()
+        self.aux_activation = str(aux_activation).lower()
+
+        if self.denoise_mode not in VALID_DENOISE_MODES:
+            raise ValueError(
+                f"Unsupported denoise_mode: {self.denoise_mode}. "
+                f"Supported: {sorted(VALID_DENOISE_MODES)}"
+            )
+        if self.evidence_pool_mode not in VALID_EVIDENCE_POOL_MODES:
+            raise ValueError(
+                f"Unsupported evidence_pool_mode: {self.evidence_pool_mode}. "
+                f"Supported: {sorted(VALID_EVIDENCE_POOL_MODES)}"
+            )
+        if self.gate_mode not in VALID_GATE_MODES:
+            raise ValueError(
+                f"Unsupported gate_mode: {self.gate_mode}. "
+                f"Supported: {sorted(VALID_GATE_MODES)}"
+            )
+        if self.aux_activation not in VALID_AUX_ACTIVATIONS:
+            raise ValueError(
+                f"Unsupported aux_activation: {self.aux_activation}. "
+                f"Supported: {sorted(VALID_AUX_ACTIVATIONS)}"
+            )
 
         if backbone_name.startswith("CLIP"):
             backbone_name_ = backbone_name[5:]
@@ -302,8 +341,12 @@ class WDADecisionFusionModel(nn.Module):
 
     def denoise_and_normalize(self, x, return_raw=False):
         x_raw = self._denormalize(x)
-        xw_raw = self.denoise(x_raw)
-        xw = self._normalize(xw_raw)
+        if self.denoise_mode == "identity":
+            xw_raw = x_raw
+            xw = x
+        else:
+            xw_raw = self.denoise(x_raw)
+            xw = self._normalize(xw_raw)
         if return_raw:
             return xw, x_raw, xw_raw
         return xw
@@ -316,40 +359,77 @@ class WDADecisionFusionModel(nn.Module):
         feat_main_norm = self.norm(feat_main)
         s_main = self.main_head(feat_main_norm)
 
-        residual = x_raw - xw_raw
+        if not self.use_evidence_branch:
+            s_final = s_main
+            evidence_map = torch.zeros(
+                (x.shape[0], 1, x.shape[-2], x.shape[-1]),
+                device=x.device,
+                dtype=x.dtype,
+            )
+            s_aux = torch.zeros_like(s_main)
+            q = torch.ones(
+                (x.shape[0], 1),
+                device=x.device,
+                dtype=s_main.dtype,
+            )
+            z_a = torch.zeros(
+                (x.shape[0], 64),
+                device=x.device,
+                dtype=s_main.dtype,
+            )
+        else:
+            if self.use_residual:
+                residual = x_raw - xw_raw
+            else:
+                residual = torch.zeros_like(x_raw)
 
-        # Auxiliary evidence branch
-        feat_map = self.aux_stem(residual)
-        feat_map = self.aux_pool0(feat_map)
-        feat_map = self.aux_proj(feat_map)
-        feat_map = self.aux_res1(feat_map)
-        feat_map = self.aux_res2(feat_map)
+            # Auxiliary evidence branch
+            feat_map = self.aux_stem(residual)
+            feat_map = self.aux_pool0(feat_map)
+            feat_map = self.aux_proj(feat_map)
+            feat_map = self.aux_res1(feat_map)
+            feat_map = self.aux_res2(feat_map)
 
-        # Evidence map A: sigmoid + upsample
-        evidence_logits = self.evidence_head(feat_map)  # [B,1,h,w]
-        evidence_map_low = torch.sigmoid(evidence_logits)
-        evidence_map = F.interpolate(
-            evidence_map_low,
-            size=x.shape[-2:],
-            mode="bilinear",
-            align_corners=False,
-        )
+            # Evidence map A: sigmoid + upsample
+            evidence_logits = self.evidence_head(feat_map)  # [B,1,h,w]
+            evidence_map_low = torch.sigmoid(evidence_logits)
+            evidence_map = F.interpolate(
+                evidence_map_low,
+                size=x.shape[-2:],
+                mode="bilinear",
+                align_corners=False,
+            )
 
-        # Parallel global head: GlobalAvgPool(feature_map) -> FC -> s_a
-        aux_global = self.aux_pool(feat_map).flatten(1)  # [B,64]
-        s_aux = self.aux_head(aux_global)
+            # Parallel global head: GlobalAvgPool(feature_map) -> FC -> s_a
+            aux_global = self.aux_pool(feat_map).flatten(1)  # [B,64]
+            s_aux = self.aux_head(aux_global)
 
-        # Local evidence feature z_a from A-aligned weighted pooling
-        weighted_sum = (feat_map * evidence_map_low).sum(dim=(2, 3))
-        weight_norm = evidence_map_low.sum(dim=(2, 3)).clamp_min(1e-6)
-        z_a = weighted_sum / weight_norm  # [B,64]
+            if self.evidence_pool_mode == "gap":
+                z_a = aux_global
+            else:
+                # Local evidence feature z_a from A-aligned weighted pooling
+                weighted_sum = (feat_map * evidence_map_low).sum(dim=(2, 3))
+                weight_norm = evidence_map_low.sum(dim=(2, 3)).clamp_min(1e-6)
+                z_a = weighted_sum / weight_norm  # [B,64]
 
-        # Confidence gate q from [z_m, z_a]
-        gate_input = torch.cat([feat_main_norm, z_a], dim=1)
-        q = self.aux_gate(gate_input)  # [B,1]
+            # Confidence gate q from [z_m, z_a]
+            if self.gate_mode == "ones":
+                q = torch.ones(
+                    (x.shape[0], 1),
+                    device=x.device,
+                    dtype=s_main.dtype,
+                )
+            else:
+                gate_input = torch.cat([feat_main_norm, z_a], dim=1)
+                q = self.aux_gate(gate_input)  # [B,1]
 
-        # Decision-level fusion (no residual reinjection to main input/features)
-        s_final = s_main + self.fusion_gamma * q * torch.tanh(s_aux)
+            if self.aux_activation == "identity":
+                aux_term = s_aux
+            else:
+                aux_term = torch.tanh(s_aux)
+
+            # Decision-level fusion (no residual reinjection to main input/features)
+            s_final = s_main + self.fusion_gamma * q * aux_term
 
         if return_attention:
             if return_feature:

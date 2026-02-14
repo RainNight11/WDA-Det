@@ -4,7 +4,53 @@ from configs.base_config import BaseConfig
 from options.train_options import TrainOptions
 
 
-EXPERIMENT_NAME = "wda_consistency_v1_WildRF"   # 选择想要train的实验组（新模型可切到 wda_decision_fusion_v1_WildRF）
+SUPPORTED_WAVELETS = ("db4", "coif2", "bior4.4", "sym8")
+DEFAULT_WAVELET = "db4"
+DEFAULT_WAVELET_LEVELS = 3
+DEFAULT_WAVELET_THETA_INIT = 0.02
+
+
+def _parse_env_bool(key):
+    raw = os.getenv(key, "").strip()
+    if raw == "":
+        return None
+    raw = raw.lower()
+    if raw in {"1", "true", "yes", "y", "on"}:
+        return True
+    if raw in {"0", "false", "no", "n", "off"}:
+        return False
+    raise ValueError(f"Invalid boolean for {key}: {raw}")
+
+
+def _parse_env_float(key):
+    raw = os.getenv(key, "").strip()
+    if raw == "":
+        return None
+    return float(raw)
+
+
+def _parse_env_int(key):
+    raw = os.getenv(key, "").strip()
+    if raw == "":
+        return None
+    return int(raw)
+
+EXPERIMENT_NAME = os.getenv(
+    "ICME_EXPERIMENT_NAME",
+    "wda_consistency_v1_WildRF",
+)   # 选择想要train的实验组（新模型可切到 wda_decision_fusion_v1_WildRF）
+EXPERIMENT_WAVELET_NAME = os.getenv("ICME_WAVELET_NAME", "").strip()
+EXPERIMENT_NAME_SUFFIX = os.getenv("ICME_EXPERIMENT_SUFFIX", "").strip()
+EXPERIMENT_ABLATION_TAG = os.getenv("ICME_ABLATION_TAG", "").strip()
+EXPERIMENT_DENOISE_MODE = os.getenv("ICME_DENOISE_MODE", "").strip()
+EXPERIMENT_USE_RESIDUAL = _parse_env_bool("ICME_USE_RESIDUAL")
+EXPERIMENT_EVIDENCE_POOL_MODE = os.getenv("ICME_EVIDENCE_POOL_MODE", "").strip()
+EXPERIMENT_GATE_MODE = os.getenv("ICME_GATE_MODE", "").strip()
+EXPERIMENT_AUX_ACTIVATION = os.getenv("ICME_AUX_ACTIVATION", "").strip()
+EXPERIMENT_USE_EVIDENCE_BRANCH = _parse_env_bool("ICME_USE_EVIDENCE_BRANCH")
+EXPERIMENT_SUPERVISED_LAMBDA = _parse_env_float("ICME_SUPERVISED_LAMBDA")
+EXPERIMENT_CONSISTENCY_LAMBDA = _parse_env_float("ICME_CONSISTENCY_LAMBDA")
+EXPERIMENT_NITER = _parse_env_int("ICME_NITER")
 ########################################
 # ConfigTrain：默认参数 + 实验配置覆盖
 ########################################
@@ -31,6 +77,44 @@ class ConfigTrain(BaseConfig):
         for k, v in exp_cfg.items():
             setattr(self, k, v)
 
+        if not getattr(self, "wavelet_name", ""):
+            self.wavelet_name = DEFAULT_WAVELET
+        if not getattr(self, "wavelet_levels", None):
+            self.wavelet_levels = DEFAULT_WAVELET_LEVELS
+        if not getattr(self, "wavelet_theta_init", None):
+            self.wavelet_theta_init = DEFAULT_WAVELET_THETA_INIT
+
+        if EXPERIMENT_WAVELET_NAME:
+            if EXPERIMENT_WAVELET_NAME not in SUPPORTED_WAVELETS:
+                raise ValueError(
+                    f"Unsupported wavelet preset: {EXPERIMENT_WAVELET_NAME}. "
+                    f"Supported: {list(SUPPORTED_WAVELETS)}"
+                )
+            self.wavelet_name = EXPERIMENT_WAVELET_NAME
+
+        if EXPERIMENT_NAME_SUFFIX:
+            self.name = f"{self.name}_{EXPERIMENT_NAME_SUFFIX}"
+        if EXPERIMENT_ABLATION_TAG:
+            self.ablation_tag = EXPERIMENT_ABLATION_TAG
+        if EXPERIMENT_DENOISE_MODE:
+            self.denoise_mode = EXPERIMENT_DENOISE_MODE
+        if EXPERIMENT_USE_RESIDUAL is not None:
+            self.use_residual = EXPERIMENT_USE_RESIDUAL
+        if EXPERIMENT_EVIDENCE_POOL_MODE:
+            self.evidence_pool_mode = EXPERIMENT_EVIDENCE_POOL_MODE
+        if EXPERIMENT_GATE_MODE:
+            self.gate_mode = EXPERIMENT_GATE_MODE
+        if EXPERIMENT_AUX_ACTIVATION:
+            self.aux_activation = EXPERIMENT_AUX_ACTIVATION
+        if EXPERIMENT_USE_EVIDENCE_BRANCH is not None:
+            self.use_evidence_branch = EXPERIMENT_USE_EVIDENCE_BRANCH
+        if EXPERIMENT_SUPERVISED_LAMBDA is not None:
+            self.supervised_lambda = EXPERIMENT_SUPERVISED_LAMBDA
+        if EXPERIMENT_CONSISTENCY_LAMBDA is not None:
+            self.consistency_lambda = EXPERIMENT_CONSISTENCY_LAMBDA
+        if EXPERIMENT_NITER is not None:
+            self.niter = EXPERIMENT_NITER
+
         # Step 3: 一些自动补全逻辑（可选）
         if not getattr(self, "checkpoints_dir", ""):
             self.checkpoints_dir = "checkpoints"
@@ -56,7 +140,7 @@ EXPERIMENT_CONFIGS = {
         arch="RFNT-CLIP:ViT-L/14",  # WDA consistency model
         loss="loss_bce",
         lr=0.001,
-        niter=10,
+        niter=5,
         gpu_ids="0",
         batch_size=32,
         num_threads=8,
@@ -81,6 +165,9 @@ EXPERIMENT_CONFIGS = {
         consistency_blur_sigma_min=0.5,
         consistency_blur_sigma_max=1.2,
         consistency_resize_scale=0.1,
+        wavelet_name="db4",
+        wavelet_levels=3,
+        wavelet_theta_init=0.02,
         wavelet_freeze_epochs=0,
         learn_wavelet=False,
     ),
@@ -89,7 +176,7 @@ EXPERIMENT_CONFIGS = {
         arch="RFNT-CLIP:ViT-L/14",  # WDA consistency model
         loss="loss_bce",
         lr=0.001,
-        niter=10,
+        niter=5,
         gpu_ids="0",
         batch_size=32,
         num_threads=8,
@@ -114,6 +201,9 @@ EXPERIMENT_CONFIGS = {
         consistency_blur_sigma_min=0.5,
         consistency_blur_sigma_max=1.2,
         consistency_resize_scale=0.1,
+        wavelet_name="db4",
+        wavelet_levels=3,
+        wavelet_theta_init=0.02,
         wavelet_freeze_epochs=0,
         learn_wavelet=False,
     ),
@@ -122,7 +212,7 @@ EXPERIMENT_CONFIGS = {
         arch="RFNTDF-CLIP:ViT-L/14",  # WDA decision-fusion model
         loss="loss_bce",
         lr=0.001,
-        niter=10,
+        niter=5,
         gpu_ids="0",
         batch_size=32,
         num_threads=8,
@@ -147,15 +237,26 @@ EXPERIMENT_CONFIGS = {
         consistency_blur_sigma_min=0.5,
         consistency_blur_sigma_max=1.2,
         consistency_resize_scale=0.1,
+        wavelet_name="db4",
+        wavelet_levels=3,
+        wavelet_theta_init=0.02,
         wavelet_freeze_epochs=0,
         learn_wavelet=False,
+        ablation_tag="A0_full",
+        denoise_mode="wavelet",
+        use_evidence_branch=True,
+        use_residual=True,
+        evidence_pool_mode="aligned",
+        gate_mode="learned",
+        aux_activation="tanh",
+        supervised_lambda=1.0,
     ),
 "wda_decision_fusion_v1_fdmas": dict(
         name="wda_decision_fusion_v1_fdmas",  # 实验名（保存目录用）
         arch="RFNTDF-CLIP:ViT-L/14",  # WDA decision-fusion model
         loss="loss_bce",
         lr=0.001,
-        niter=10,
+        niter=5,
         gpu_ids="0",
         batch_size=32,
         num_threads=8,
@@ -180,8 +281,19 @@ EXPERIMENT_CONFIGS = {
         consistency_blur_sigma_min=0.5,
         consistency_blur_sigma_max=1.2,
         consistency_resize_scale=0.1,
+        wavelet_name="db4",
+        wavelet_levels=3,
+        wavelet_theta_init=0.02,
         wavelet_freeze_epochs=0,
         learn_wavelet=False,
+        ablation_tag="A0_full",
+        denoise_mode="wavelet",
+        use_evidence_branch=True,
+        use_residual=True,
+        evidence_pool_mode="aligned",
+        gate_mode="learned",
+        aux_activation="tanh",
+        supervised_lambda=1.0,
     ),
     
 "image-denoised-clip": dict(

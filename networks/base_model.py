@@ -15,6 +15,8 @@ class BaseModel(nn.Module):
 
     def save_networks(self, save_filename):
         save_path = os.path.join(self.save_dir, save_filename)
+        os.makedirs(self.save_dir, exist_ok=True)
+        tmp_path = f"{save_path}.tmp.{os.getpid()}"
 
         # serialize model and optimizer to dict
         state_dict = {
@@ -23,7 +25,30 @@ class BaseModel(nn.Module):
             'total_steps' : self.total_steps,
         }
 
-        torch.save(state_dict, save_path)
+        try:
+            try:
+                # Fast path: default zipfile serialization.
+                torch.save(state_dict, tmp_path)
+            except RuntimeError as exc:
+                msg = str(exc)
+                # Some filesystems intermittently fail with zip writer errors.
+                if ("PytorchStreamWriter failed writing file" in msg) or ("unexpected pos" in msg):
+                    if os.path.exists(tmp_path):
+                        os.remove(tmp_path)
+                    # Retry with legacy serialization for better compatibility.
+                    torch.save(
+                        state_dict,
+                        tmp_path,
+                        _use_new_zipfile_serialization=False,
+                    )
+                else:
+                    raise
+
+            # Atomic replace: avoid half-written checkpoints.
+            os.replace(tmp_path, save_path)
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
 
     def eval(self):

@@ -54,16 +54,16 @@ VALID_NAMES = [
 
 
 
-def get_model(name):
+def get_model(name, **kwargs):
     assert name in VALID_NAMES
     if name.startswith("Imagenet:"):
         return ImagenetModel(name[9:]) 
     elif name.startswith("CLIP:"):
         return CLIPModel(name[5:])
     elif name.startswith("RFNTDF-"):
-        return WDADecisionFusionModel(name[len("RFNTDF-"):])
+        return WDADecisionFusionModel(name[len("RFNTDF-"):], **kwargs)
     elif name.startswith("RFNT"):
-        return WDAModel(name[5:])
+        return WDAModel(name[5:], **kwargs)
     elif name.startswith("MoEDD"):
         return MoEDDModel("MoEDD")
     else:

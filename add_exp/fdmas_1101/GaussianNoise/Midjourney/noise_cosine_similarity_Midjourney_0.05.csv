@@ -1,3 +1,0 @@
-dataset,parameter,value,image_type,count,mean_similarity,std_similarity
-Midjourney,Noise STD,0.05,Real,6000,0.9306232429643472,0.03093457891956046
-Midjourney,Noise STD,0.05,Fake,6000,0.9212513744632403,0.03160229725721625

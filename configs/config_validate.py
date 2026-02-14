@@ -1,10 +1,50 @@
 # validate.py（或你定义 ValConfig 的文件）
 import os
 
+SUPPORTED_WAVELETS = ("db4", "coif2", "bior4.4", "sym8")
+DEFAULT_WAVELET = "db4"
+DEFAULT_WAVELET_LEVELS = 3
+DEFAULT_WAVELET_THETA_INIT = 0.02
+
+
+def _parse_env_bool(key):
+    raw = os.getenv(key, "").strip()
+    if raw == "":
+        return None
+    raw = raw.lower()
+    if raw in {"1", "true", "yes", "y", "on"}:
+        return True
+    if raw in {"0", "false", "no", "n", "off"}:
+        return False
+    raise ValueError(f"Invalid boolean for {key}: {raw}")
+
+
+def _parse_env_float(key):
+    raw = os.getenv(key, "").strip()
+    if raw == "":
+        return None
+    return float(raw)
+
 ########################################
 # 1. 选择当前要用的验证配置
 ########################################
-VAL_EXPERIMENT_NAME = "wda_consistency_v1_WildRF"   # 在这里切换：wildrf_vitl14 / fdmas_dinov2 等（新模型可切到 wda_decision_fusion_v1_WildRF）
+VAL_EXPERIMENT_NAME = os.getenv(
+    "ICME_VAL_EXPERIMENT_NAME",
+    "wda_consistency_v1_WildRF",
+)   # 在这里切换：wildrf_vitl14 / fdmas_dinov2 等（新模型可切到 wda_decision_fusion_v1_WildRF）
+VAL_WAVELET_NAME = os.getenv("ICME_WAVELET_NAME", "").strip()
+VAL_CHECKPOINT_DIR = os.getenv("ICME_VAL_CHECKPOINT_DIR", "").strip()
+VAL_EPOCH_OVERRIDE = os.getenv("ICME_VAL_EPOCH", "").strip()
+VAL_RESULT_SUFFIX = os.getenv("ICME_RESULT_SUFFIX", "").strip()
+VAL_ABLATION_TAG = os.getenv("ICME_ABLATION_TAG", "").strip()
+VAL_DENOISE_MODE = os.getenv("ICME_DENOISE_MODE", "").strip()
+VAL_USE_RESIDUAL = _parse_env_bool("ICME_USE_RESIDUAL")
+VAL_EVIDENCE_POOL_MODE = os.getenv("ICME_EVIDENCE_POOL_MODE", "").strip()
+VAL_GATE_MODE = os.getenv("ICME_GATE_MODE", "").strip()
+VAL_AUX_ACTIVATION = os.getenv("ICME_AUX_ACTIVATION", "").strip()
+VAL_USE_EVIDENCE_BRANCH = _parse_env_bool("ICME_USE_EVIDENCE_BRANCH")
+VAL_SUPERVISED_LAMBDA = _parse_env_float("ICME_SUPERVISED_LAMBDA")
+VAL_CONSISTENCY_LAMBDA = _parse_env_float("ICME_CONSISTENCY_LAMBDA")
 
 
 ########################################
@@ -21,13 +61,16 @@ VAL_EXPERIMENT_CONFIGS = {
         max_sample=None,
         jpeg_quality=None,
         gaussian_sigma=None,
+        wavelet_name="db4",
+        wavelet_levels=3,
+        wavelet_theta_init=0.02,
         disable_ssl_verify=False,
 
         # 测试用的数据根目录
         dataroot="/hy-tmp/WildRF/test/",
         data_mode="RFNT_WildRF",
-        # 测试哪个 epoch：可以是 '2' 或 '7-10'
-        val_epoch="5",
+        # 测试哪个 epoch：支持具体编号、区间或 "last"
+        val_epoch="last",
     ),
     "wda_consistency_v1_fdmas": dict(
         arch="RFNT-CLIP:ViT-L/14",
@@ -39,13 +82,16 @@ VAL_EXPERIMENT_CONFIGS = {
         max_sample=None,
         jpeg_quality=None,
         gaussian_sigma=None,
+        wavelet_name="db4",
+        wavelet_levels=3,
+        wavelet_theta_init=0.02,
         disable_ssl_verify=False,
 
         # 测试用的数据根目录
         dataroot="/hy-tmp/WildRF/test/",
         data_mode="RFNT_WildRF",
-        # 测试哪个 epoch：可以是 '2' 或 '7-10'
-        val_epoch="5",
+        # 测试哪个 epoch：支持具体编号、区间或 "last"
+        val_epoch="last",
     ),
     "wda_decision_fusion_v1_WildRF": dict(
         arch="RFNTDF-CLIP:ViT-L/14",
@@ -57,13 +103,24 @@ VAL_EXPERIMENT_CONFIGS = {
         max_sample=None,
         jpeg_quality=None,
         gaussian_sigma=None,
+        wavelet_name="db4",
+        wavelet_levels=3,
+        wavelet_theta_init=0.02,
         disable_ssl_verify=False,
 
         # 测试用的数据根目录
         dataroot="/hy-tmp/WildRF/test/",
         data_mode="RFNT_WildRF",
-        # 测试哪个 epoch：可以是 '2' 或 '7-10'
-        val_epoch="5",
+        # 测试哪个 epoch：支持具体编号、区间或 "last"
+        val_epoch="last",
+        ablation_tag="A0_full",
+        denoise_mode="wavelet",
+        use_evidence_branch=True,
+        use_residual=True,
+        evidence_pool_mode="aligned",
+        gate_mode="learned",
+        aux_activation="tanh",
+        supervised_lambda=1.0,
     ),
     "wda_decision_fusion_v1_fdmas": dict(
         arch="RFNTDF-CLIP:ViT-L/14",
@@ -75,13 +132,24 @@ VAL_EXPERIMENT_CONFIGS = {
         max_sample=None,
         jpeg_quality=None,
         gaussian_sigma=None,
+        wavelet_name="db4",
+        wavelet_levels=3,
+        wavelet_theta_init=0.02,
         disable_ssl_verify=False,
 
         # 测试用的数据根目录
         dataroot="/hy-tmp/WildRF/test/",
         data_mode="RFNT_WildRF",
-        # 测试哪个 epoch：可以是 '2' 或 '7-10'
-        val_epoch="5",
+        # 测试哪个 epoch：支持具体编号、区间或 "last"
+        val_epoch="last",
+        ablation_tag="A0_full",
+        denoise_mode="wavelet",
+        use_evidence_branch=True,
+        use_residual=True,
+        evidence_pool_mode="aligned",
+        gate_mode="learned",
+        aux_activation="tanh",
+        supervised_lambda=1.0,
     ),
      # 
     "image-denoised-clip": dict(
@@ -371,7 +439,47 @@ class ValConfig:
         for k, v in cfg.items():
             setattr(self, k, v)
 
-        self.result_folder = os.path.join(self.result_folder,VAL_EXPERIMENT_NAME)
+        if not getattr(self, "wavelet_name", ""):
+            self.wavelet_name = DEFAULT_WAVELET
+        if not getattr(self, "wavelet_levels", None):
+            self.wavelet_levels = DEFAULT_WAVELET_LEVELS
+        if not getattr(self, "wavelet_theta_init", None):
+            self.wavelet_theta_init = DEFAULT_WAVELET_THETA_INIT
+
+        if VAL_WAVELET_NAME:
+            if VAL_WAVELET_NAME not in SUPPORTED_WAVELETS:
+                raise ValueError(
+                    f"Unsupported wavelet preset: {VAL_WAVELET_NAME}. "
+                    f"Supported: {list(SUPPORTED_WAVELETS)}"
+                )
+            self.wavelet_name = VAL_WAVELET_NAME
+
+        if VAL_CHECKPOINT_DIR:
+            self.checkpoint_dir = VAL_CHECKPOINT_DIR
+        if VAL_EPOCH_OVERRIDE:
+            self.val_epoch = VAL_EPOCH_OVERRIDE
+        if VAL_ABLATION_TAG:
+            self.ablation_tag = VAL_ABLATION_TAG
+        if VAL_DENOISE_MODE:
+            self.denoise_mode = VAL_DENOISE_MODE
+        if VAL_USE_RESIDUAL is not None:
+            self.use_residual = VAL_USE_RESIDUAL
+        if VAL_EVIDENCE_POOL_MODE:
+            self.evidence_pool_mode = VAL_EVIDENCE_POOL_MODE
+        if VAL_GATE_MODE:
+            self.gate_mode = VAL_GATE_MODE
+        if VAL_AUX_ACTIVATION:
+            self.aux_activation = VAL_AUX_ACTIVATION
+        if VAL_USE_EVIDENCE_BRANCH is not None:
+            self.use_evidence_branch = VAL_USE_EVIDENCE_BRANCH
+        if VAL_SUPERVISED_LAMBDA is not None:
+            self.supervised_lambda = VAL_SUPERVISED_LAMBDA
+        if VAL_CONSISTENCY_LAMBDA is not None:
+            self.consistency_lambda = VAL_CONSISTENCY_LAMBDA
+
+        self.result_folder = os.path.join(self.result_folder, VAL_EXPERIMENT_NAME)
+        if VAL_RESULT_SUFFIX:
+            self.result_folder = os.path.join(self.result_folder, VAL_RESULT_SUFFIX)
         # 这里你也可以加一些自动补全逻辑，比如：
         # 确保 checkpoint_dir 是一个存在的目录（可选）
         # if not os.path.exists(self.checkpoint_dir):

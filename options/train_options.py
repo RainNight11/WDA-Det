@@ -20,6 +20,7 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--niter', type=int, default=15, help='total epoches')  # epoch
         parser.add_argument('--beta1', type=float, default=0.9, help='momentum term of adam')
         parser.add_argument('--lr', type=float, default=0.0001, help='initial learning rate for adam')
+        parser.add_argument('--supervised_lambda', type=float, default=1.0, help='weight for supervised BCE loss')
         parser.add_argument('--consistency_lambda', type=float, default=0.0, help='weight for consistency loss; 0 disables')
         parser.add_argument('--consistency_warmup', type=float, default=0.1, help='warmup ratio of total steps')
         parser.add_argument('--consistency_ema_decay', type=float, default=0.99, help='EMA decay for teacher (0 disables EMA)')
@@ -28,6 +29,9 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--consistency_blur_sigma_min', type=float, default=0.5, help='min gaussian sigma for blur aug')
         parser.add_argument('--consistency_blur_sigma_max', type=float, default=1.2, help='max gaussian sigma for blur aug')
         parser.add_argument('--consistency_resize_scale', type=float, default=0.1, help='resize scale range for consistency aug')
+        parser.add_argument('--wavelet_name', type=str, default='db4', help='wavelet basis: db4/coif2/bior4.4/sym8')
+        parser.add_argument('--wavelet_levels', type=int, default=3, help='wavelet decomposition levels')
+        parser.add_argument('--wavelet_theta_init', type=float, default=0.02, help='initial shrinkage theta for learnable wavelet')
         parser.add_argument('--wavelet_freeze_epochs', type=int, default=0, help='freeze learnable wavelet theta for first N epochs')
         parser.add_argument('--learn_wavelet', action='store_true', help='enable learnable wavelet shrinkage; default off')
 
